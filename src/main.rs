@@ -11,6 +11,7 @@ use cortex_m_semihosting::{debug, hprintln};
 #[entry]
 fn main() -> ! {
     hprintln!("Hello, world!").unwrap();
+    hprintln!("Hello again").unwrap();
 
     // exit QEMU
     // NOTE do not run this on hardware; it can corrupt OpenOCD state

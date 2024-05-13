@@ -79,7 +79,9 @@
           default =
             pkgs.mkShell {
               buildInputs = with pkgs; [
-                rustToolchain # use the same cargo and rustc in the devShell
+                cargo
+                rustc
+                # rustToolchain # use the same cargo and rustc in the devShell
                 rustfmt
                 clippy
                 cargo-generate
