@@ -1,3 +1,12 @@
+# Documentation:
+# main source for flake.nix
+# https://gburghoorn.com/posts/just-nix-rust-wasm/
+# 
+# nixpkgs manual on rust
+# https://nixos.org/manual/nixpkgs/stable/#rust
+# 
+# auditable = false fix for arm-none-eabi-ld: unrecognized option '-Wl,--undefined=AUDITABLE_VERSION_INFO'
+# https://git.m-labs.hk/M-Labs/zynq-rs/commit/91bae572f913abc2f95acb899ca5afa33eeaa036#diff-58cb4f58166586c1ed7f076c568d41682df3661c
 {
   description = "Embedded Hello world rust program cross compiled with nix";
 
@@ -14,21 +23,24 @@
     utils.lib.eachDefaultSystem (system:
       let
         # buildTarget = "wasm32-unknown-unknown";
-        buildTarget = "thumbv6m-none-eabi";
+        buildTarget = "thumbv7m-none-eabi"; # cortex m3
         # buildTarget = "x86_64-unknown-linux-gnu";
 
-        packageName = "template";
+        packageName = "template"; # should be the same as cargo project name
 
+        # Add rust overlay
         pkgs = import nixpkgs {
           inherit system;
           overlays = [ rust-overlay.overlays.default ];
         };
 
+        # get a cross compilation toolchain
         rustToolchain = pkgs.rust-bin.beta.latest.default.override {
-          extensions = [ "rust-src" ];
+          extensions = [ "rust-src" "llvm-tools-preview" ];
           targets = [ buildTarget ];
         };
 
+        # construct a rustPlatform, to be able to use buildRustPackage below
         rustPlatform = pkgs.makeRustPlatform {
           cargo = rustToolchain;
           rustc = rustToolchain;
@@ -52,9 +64,28 @@
             cp target/${buildTarget}/release/${packageName} $out/bin/${packageName}
           '';
 
-          # Disable checks if they only work for WASM
+          # Disable checks, they dont work for wasm & arm
           doCheck = false;
-          auditable = false; 
+          # Fix undefined AUDITABLE_VERSION_INFO
+          auditable = false;
+        };
+
+        apps.default = {
+          type = "app";
+          program = "${pkgs.qemu}/bin/qemu-system-arm   -cpu cortex-m3   -machine stm32vldiscovery   -nographic   -semihosting-config enable=on,target=native   -kernel ${self.packages.x86_64-linux.default}/bin/${packageName}";
+        };
+
+        devShells = {
+          default =
+            pkgs.mkShell {
+              buildInputs = with pkgs; [
+                rustToolchain # use the same cargo and rustc in the devShell
+                rustfmt
+                clippy
+                cargo-generate
+                cargo-binutils
+              ];
+            };
         };
       }
     );
