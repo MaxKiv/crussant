@@ -2,4 +2,9 @@ build:
   nix build
 
 run:
-  nix run
+  qemu-system-arm \
+    -cpu cortex-m3 \
+    -machine lm3s6965evb \
+    -nographic \
+    -semihosting-config enable=on,target=native \
+    -kernel ./result/bin/crussant
