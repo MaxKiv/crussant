@@ -37,6 +37,11 @@
       };
     };
 
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # advisory-db = {
     #   url = "github:rustsec/advisory-db";
     #   flake = false;
@@ -44,7 +49,7 @@
 
   };
 
-  outputs = { nixpkgs, crane, flake-utils, rust-overlay, ... } @ inputs:
+  outputs = { self, nixpkgs, crane, flake-utils, rust-overlay, devshell, ... } @ inputs:
 
     flake-utils.lib.eachDefaultSystem (localSystem:
       let
@@ -56,9 +61,15 @@
         # Replace with the system you want to build for
         crossSystem = "thumbv7m-none-eabi";
 
+        # Qemu binary required to simulate the above system
+        qemu_binary = "qemu-system-arm";
+
         pkgs = import nixpkgs {
           inherit localSystem;
-          overlays = [ (import rust-overlay) ];
+          overlays = [
+            devshell.overlays.default
+            rust-overlay.overlays.default
+          ];
         };
 
         rustToolchain = pkgs.pkgsBuildHost.rust-bin.stable.latest.default.override {
@@ -134,7 +145,7 @@
           # They are also be set in `.cargo/config.toml` instead.
           # See: https://doc.rust-lang.org/cargo/reference/config.html#target
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER = "${pkgs.stdenv.cc.targetPrefix}cc";
-          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER = "qemu-system-arm";
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER = "${qemu_binary}";
 
           # This environment variable may be necessary if any of your dependencies use a
           # build-script which invokes the `cc` crate to build some other code. The `cc` crate
@@ -197,32 +208,83 @@
         packages.default = package; # `nix build`
         packages.${projectName} = package; # `nix build .#${projectName}`
 
+        # `nix run`
         apps.default = flake-utils.lib.mkApp {
           drv = pkgs.writeScriptBin "my-app" ''
-            ${pkgs.pkgsBuildBuild.qemu}/bin/qemu-aarch64 ${package}/bin/cross-rust-overlay
+            ${pkgs.pkgsBuildBuild.qemu}/bin/${qemu_binary} -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel result/bin/${projectName}
           '';
         };
 
-        devShells = {
-          default =
-            pkgs.mkShell {
-              buildInputs = with pkgs;
-                let
-                  # get a native compiler toolchain with the right extensions
-                  rustToolchain = pkgs.rust-bin.beta.latest.default.override {
-                    extensions = [ "rust-src" "llvm-tools-preview" ];
-                  };
-                in
-                [
-                  rustToolchain
-                  rustfmt
-                  clippy
-                  cargo-generate
-                  cargo-binutils
-                ];
-            };
+        # `nix develop`
+        devShells.default = pkgs.devshell.mkShell {
+          name = projectName;
+          imports = [
+            "${devshell}/extra/language/c.nix"
+            "${devshell}/extra/language/rust.nix"
+          ];
+
+          language.rust.enableDefaultToolchain = false;
+
+          commands = [
+            {
+              package = pkgs.alejandra;
+              help = "Format nix code";
+            }
+            {
+              package = pkgs.statix;
+              help = "Lint nix code";
+            }
+            {
+              package = pkgs.deadnix;
+              help = "Find unused expressions in nix code";
+            }
+          ];
+
+          # devshell.startup.pre-commit.text = self.checks.${localSystem}.pre-commit.shellHook;
+          packages =
+            let
+              # Do not expose rust's gcc: https://github.com/oxalica/rust-overlay/issues/70
+              # Create a wrapper that only exposes $pkg/bin. This prevents pulling in
+              # development deps, like python interpreter + $PYTHONPATH, when adding
+              # packages to a nix-shell. This is especially important when packages
+              # are combined from different nixpkgs versions.
+              mkBinOnlyWrapper = pkg:
+                pkgs.runCommand "${pkg.pname}-${pkg.version}-bin" { inherit (pkg) meta; } ''
+                  mkdir -p "$out/bin"
+                  for bin in "${lib.getBin pkg}/bin/"*; do
+                      ln -s "$bin" "$out/bin/"
+                  done
+                '';
+            in
+            commonArgs.buildInputs
+            ++ [
+              (mkBinOnlyWrapper rustToolchain)
+              pkgs.probe-run
+              pkgs.gcc-arm-embedded
+              pkgs.rust-analyzer
+            ];
         };
 
+        # devShells = {
+        #   default =
+        #     pkgs.mkShell {
+        #       buildInputs = with pkgs;
+        #         let
+        #           # get a native compiler toolchain with the right extensions
+        #           rustToolchain = pkgs.rust-bin.beta.latest.default.override {
+        #             extensions = [ "rust-src" "llvm-tools-preview" ];
+        #           };
+        #         in
+        #         [
+        #           rustToolchain
+        #           rustfmt
+        #           clippy
+        #           cargo-generate
+        #           cargo-binutils
+        #         ];
+        #     };
+        # };
+        #
         formatter = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
       }
     );
