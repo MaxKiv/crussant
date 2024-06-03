@@ -91,13 +91,15 @@
             filter = path: type: (craneLib.filterCargoSources path type) || (builtins.baseNameOf path == "memory.x");
           };
 
+          buildType = "release";
+
           # External packages required to compile this project.
           # For normal rust applications this would contain runtime dependencies,
           # but since we are compiling for a foreign platform this is most likely
           # going to stay empty except for the linker.
           buildInputs =
             [
-              pkgs.flip-link
+              pkgs.flip-link # Flips memory layout, first data, then downward stack
             ]
             ++ lib.optionals pkgs.stdenv.isDarwin [
               # Additional darwin specific inputs can be set here
@@ -211,7 +213,12 @@
         # `nix run`
         apps.default = flake-utils.lib.mkApp {
           drv = pkgs.writeScriptBin "my-app" ''
-            ${pkgs.pkgsBuildBuild.qemu}/bin/${qemu_binary} -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel result/bin/${projectName}
+            ${pkgs.pkgsBuildBuild.qemu}/bin/${qemu_binary} \
+            -cpu cortex-m3 \
+            -machine lm3s6965evb \
+            -nographic \
+            -semihosting-config enable=on,target=native \
+            -kernel result/bin/${projectName}
           '';
         };
 
