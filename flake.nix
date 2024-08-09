@@ -17,6 +17,7 @@
   inputs = {
     # Nix wrapper lib around buildRustPackage, that fixes caching and incremental builds
     # naersk.url = "github:nix-community/naersk";
+
     crane = {
       url = "github:ipetkov/crane";
       inputs = {
@@ -55,14 +56,14 @@
       let
         inherit (pkgs) lib;
 
-        # TODO: change this to your desired project name
         projectName = "crussant";
 
         # Replace with the system you want to build for
-        crossSystem = "thumbv7m-none-eabi";
+        # crossSystem = "thumbv7m-none-eabi";
+        crossSystem = "riscv32imc-unknown-none-elf";
 
         # Qemu binary required to simulate the above system
-        qemu_binary = "qemu-system-arm";
+        qemu_binary = "qemu-system-riscv32";
 
         pkgs = import nixpkgs {
           inherit localSystem;
@@ -84,8 +85,7 @@
         commonArgs = {
           # Our rust related sources.
           # - filterCargoSources will filter out anything not rust-related
-          # - Additionally we allow memory.x so our linker knows where to place
-          # the code for the nRF52840.
+          # - Additionally we allow memory.x so our linker knows where to place the code
           src = lib.cleanSourceWith {
             src = ./.;
             filter = path: type: (craneLib.filterCargoSources path type) || (builtins.baseNameOf path == "memory.x");
@@ -157,70 +157,70 @@
           HOST_CC = "${pkgs.stdenv.cc.nativePrefix}cc";
         };
 
-        # Build *just* the cargo dependencies, so we can reuse
-        # all of that work (e.g. via cachix) when running in CI
-        cargoArtifacts = craneLib.buildDepsOnly (commonArgs
-          // {
-          extraDummyScript = ''
-            cp -a ${./memory.x} $out/memory.x
-          '';
-        });
+        # # Build *just* the cargo dependencies, so we can reuse
+        # # all of that work (e.g. via cachix) when running in CI
+        # cargoArtifacts = craneLib.buildDepsOnly (commonArgs
+        #   // {
+        #   extraDummyScript = ''
+        #     cp -a ${./memory.x} $out/memory.x
+        #   '';
+        # });
 
         # Build the actual package
-        package = craneLib.buildPackage (commonArgs
-          // {
-          inherit cargoArtifacts;
-        });
+        # package = craneLib.buildPackage (commonArgs
+        #   // {
+        #   inherit cargoArtifacts;
+        # });
       in
       {
-        checks = {
-          # Build the crate normally as part of checking, for convenience
-          ${projectName} = package;
+        # checks = {
+        #   # Build the crate normally as part of checking, for convenience
+        #   ${projectName} = package;
+        #
+        #   # Run clippy (and deny all warnings) on the crate source,
+        #   # again, resuing the dependency artifacts from above.
+        #   #
+        #   # Note that this is done as a separate derivation so that
+        #   # we can block the CI if there are issues here, but not
+        #   # prevent downstream consumers from building our crate by itself.
+        #   "${projectName}-clippy" = craneLib.cargoClippy (commonArgs
+        #     // {
+        #     inherit cargoArtifacts;
+        #     cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+        #   });
+        #
+        #   "${projectName}-doc" = craneLib.cargoDoc (commonArgs
+        #     // {
+        #     inherit cargoArtifacts;
+        #   });
+        #
+        #   # Check formatting
+        #   "${projectName}-fmt" = craneLib.cargoFmt {
+        #     inherit (commonArgs) src;
+        #   };
+        #
+        #   # # Audit dependencies
+        #   # "${projectName}-audit" = craneLib.cargoAudit {
+        #   #   inherit (commonArgs) src;
+        #   #   inherit advisory-db;
+        #   # };
+        #
+        # };
 
-          # Run clippy (and deny all warnings) on the crate source,
-          # again, resuing the dependency artifacts from above.
-          #
-          # Note that this is done as a separate derivation so that
-          # we can block the CI if there are issues here, but not
-          # prevent downstream consumers from building our crate by itself.
-          "${projectName}-clippy" = craneLib.cargoClippy (commonArgs
-            // {
-            inherit cargoArtifacts;
-            cargoClippyExtraArgs = "--all-targets -- --deny warnings";
-          });
-
-          "${projectName}-doc" = craneLib.cargoDoc (commonArgs
-            // {
-            inherit cargoArtifacts;
-          });
-
-          # Check formatting
-          "${projectName}-fmt" = craneLib.cargoFmt {
-            inherit (commonArgs) src;
-          };
-
-          # # Audit dependencies
-          # "${projectName}-audit" = craneLib.cargoAudit {
-          #   inherit (commonArgs) src;
-          #   inherit advisory-db;
-          # };
-
-        };
-
-        packages.default = package; # `nix build`
-        packages.${projectName} = package; # `nix build .#${projectName}`
+        # packages.default = package; # `nix build`
+        # packages.${projectName} = package; # `nix build .#${projectName}`
 
         # `nix run`
-        apps.default = flake-utils.lib.mkApp {
-          drv = pkgs.writeScriptBin "my-app" ''
-            ${pkgs.pkgsBuildBuild.qemu}/bin/${qemu_binary} \
-            -cpu cortex-m3 \
-            -machine lm3s6965evb \
-            -nographic \
-            -semihosting-config enable=on,target=native \
-            -kernel result/bin/${projectName}
-          '';
-        };
+        # apps.default = flake-utils.lib.mkApp {
+        #   drv = pkgs.writeScriptBin "my-app" ''
+        #     ${pkgs.pkgsBuildBuild.qemu}/bin/${qemu_binary} \
+        #     -cpu cortex-m3 \
+        #     -machine lm3s6965evb \
+        #     -nographic \
+        #     -semihosting-config enable=on,target=native \
+        #     -kernel result/bin/${projectName}
+        #   '';
+        # };
 
         # `nix develop`
         devShells.default = pkgs.devshell.mkShell {
@@ -266,7 +266,7 @@
             commonArgs.buildInputs
             ++ [
               (mkBinOnlyWrapper rustToolchain)
-              pkgs.probe-run
+              pkgs.cargo-espflash
               pkgs.gcc-arm-embedded
               pkgs.rust-analyzer
             ];
