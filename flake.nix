@@ -74,6 +74,7 @@
         };
 
         rustToolchain = pkgs.pkgsBuildHost.rust-bin.stable.latest.default.override {
+          extensions = [ "llvm-tools-preview" ];
           targets = [ crossSystem ];
         };
 
@@ -266,9 +267,12 @@
             commonArgs.buildInputs
             ++ [
               (mkBinOnlyWrapper rustToolchain)
-              pkgs.cargo-espflash
+              pkgs.cargo-espflash # Serial flasher utilities for Espressif devices, based loosely on esptool.py.
+              pkgs.probe-rs # Cross platform flashing & debugging utilities, cargo extention from the probe.rs group
               pkgs.gcc-arm-embedded
+              pkgs.gdb
               pkgs.rust-analyzer
+              pkgs.cargo-binutils
             ];
         };
 
