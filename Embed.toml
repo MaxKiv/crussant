@@ -23,4 +23,10 @@ do_chip_erase = false
 # When flashing is enabled as well, the target will be reset after flashing.
 enabled = true
 # Whether or not the target should be halted after reset.
-halt_afterwards = true
+halt_afterwards = false
+
+[default.rtt]
+enabled = true
+
+[default.gdb]
+enabled = false

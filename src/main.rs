@@ -1,11 +1,13 @@
 #![no_std]
 #![no_main]
 
-use embedded_graphics::mono_font::ascii::FONT_6X10;
-use embedded_graphics::pixelcolor::Rgb565;
-use embedded_graphics::primitives::PrimitiveStyleBuilder;
-use epd_waveshare::color::Black;
-use epd_waveshare::epd1in54b::{Display1in54b, Epd1in54b};
+// use embedded_graphics::{prelude::*, primitives::Line};
+// use embedded_graphics::mono_font::ascii::FONT_6X10;
+// use embedded_graphics::pixelcolor::Rgb565;
+// use embedded_graphics::primitives::PrimitiveStyleBuilder;
+// use epd_waveshare::color::Black;
+
+use epd_waveshare::epd1in54b::Display1in54b;
 use esp_hal::entry;
 use esp_hal::gpio::any_pin::AnyPin;
 use esp_hal::gpio::{Input, Io, Level};
@@ -16,7 +18,6 @@ use esp_hal::spi::SpiMode;
 use esp_hal::system::SystemControl;
 use esp_hal::{clock::ClockControl, delay::Delay};
 
-use embedded_graphics::{prelude::*, primitives::Line};
 use epd_waveshare::{epd1in54::*, prelude::*};
 
 use esp_backtrace as _;
@@ -57,7 +58,7 @@ fn main() -> ! {
 
     // Setup EPD
     println!("Setup EPD");
-    let mut epd = Epd1in54b::new(&mut spi, cs, busy_in, dc, rst, &mut delay)
+    let mut epd = Epd1in54::new(&mut spi, cs, busy_in, dc, rst, &mut delay)
         .expect("issue constructing Epd1in54 driver");
 
     println!("Wake EPD");
@@ -76,7 +77,7 @@ fn main() -> ! {
     delay.delay_millis(5000);
 
     // Use display graphics from embedded-graphics
-    let mut display = Display1in54b::default();
+    let display = Display1in54b::default();
     // let style = embedded_graphics::mono_font::MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
     // Create a text at position (20, 30) and draw it using the previously defined style
     // Text::new("Hello Rust!", Point::new(20, 30), style)
@@ -92,27 +93,39 @@ fn main() -> ! {
     //     .into_styled(style)
     //     .draw(&mut display);
 
-    // Draw some squares
-    let small_buffer = [TriColor::Black.get_byte_value(); 5000]; //160x160
+    // Do some frame updates
+    println!("Setting screen black");
+    let small_buffer = [TriColor::Black.get_byte_value(); 5000];
     epd.update_frame(&mut spi, &small_buffer, &mut delay)
         .expect("err frame update 1");
+    epd.update_frame(&mut spi, display.buffer(), &mut delay)
+        .expect("epd update frame err");
+    epd.display_frame(&mut spi, &mut delay)
+        .expect("err displaying updated frame");
 
-    let small_buffer = [TriColor::White.get_byte_value(); 5000]; //80x80
+    delay.delay_millis(5000);
+
+    println!("Setting screen white");
+    let small_buffer = [TriColor::White.get_byte_value(); 5000];
     epd.update_frame(&mut spi, &small_buffer, &mut delay)
         .expect("err frame update 2");
+    epd.update_frame(&mut spi, display.buffer(), &mut delay)
+        .expect("epd update frame err");
+    epd.display_frame(&mut spi, &mut delay)
+        .expect("err displaying updated frame");
 
-    let small_buffer = [TriColor::Chromatic.get_byte_value(); 5000]; //8x8
+    delay.delay_millis(5000);
+
+    println!("Setting screen red");
+    let small_buffer = [TriColor::Chromatic.get_byte_value(); 5000];
     epd.update_frame(&mut spi, &small_buffer, &mut delay)
         .expect("err frame update 3");
 
-    // Display updated frame
-    println!("Displaying frame update");
+    epd.update_frame(&mut spi, display.buffer(), &mut delay)
+        .expect("epd update frame err");
+    epd.display_frame(&mut spi, &mut delay)
+        .expect("err displaying updated frame");
 
-    // epd.update_frame(&mut spi, display.buffer(), &mut delay)
-    //     .expect("epd update frame err");
-    // epd.display_frame(&mut spi, &mut delay)
-    //     .expect("err displaying updated frame");
-    //
     delay.delay_millis(5000);
 
     // Set the EPD to sleep
@@ -121,5 +134,7 @@ fn main() -> ! {
         .expect("issue setting display to sleep");
 
     delay.delay_millis(5000);
+
+    #[allow(clippy::empty_loop)]
     loop {}
 }
