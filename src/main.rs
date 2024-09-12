@@ -77,7 +77,7 @@ fn main() -> ! {
     delay.delay_millis(5000);
 
     // Use display graphics from embedded-graphics
-    let display = Display1in54b::default();
+    let mut display = Display1in54b::default();
     // let style = embedded_graphics::mono_font::MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
     // Create a text at position (20, 30) and draw it using the previously defined style
     // Text::new("Hello Rust!", Point::new(20, 30), style)
@@ -89,44 +89,23 @@ fn main() -> ! {
     //     .stroke_color(Rgb565::RED)
     //     .stroke_width(1)
     //     .build();
-    // let _ = Line::new(Point::new(0, 120), Point::new(0, 295))
+    // let _ = Line::new(Point::new(0, 120), Point::new(0, 295)
     //     .into_styled(style)
     //     .draw(&mut display);
 
     // Do some frame updates
-    println!("Setting screen black");
-    let small_buffer = [TriColor::Black.get_byte_value(); 5000];
-    epd.update_frame(&mut spi, &small_buffer, &mut delay)
-        .expect("err frame update 1");
-    epd.update_frame(&mut spi, display.buffer(), &mut delay)
-        .expect("epd update frame err");
-    epd.display_frame(&mut spi, &mut delay)
-        .expect("err displaying updated frame");
-
-    delay.delay_millis(5000);
-
-    println!("Setting screen white");
-    let small_buffer = [TriColor::White.get_byte_value(); 5000];
-    epd.update_frame(&mut spi, &small_buffer, &mut delay)
-        .expect("err frame update 2");
-    epd.update_frame(&mut spi, display.buffer(), &mut delay)
-        .expect("epd update frame err");
-    epd.display_frame(&mut spi, &mut delay)
-        .expect("err displaying updated frame");
-
-    delay.delay_millis(5000);
-
     println!("Setting screen red");
-    let small_buffer = [TriColor::Chromatic.get_byte_value(); 5000];
-    epd.update_frame(&mut spi, &small_buffer, &mut delay)
-        .expect("err frame update 3");
+    // let small_buffer = [TriColor::Black.get_byte_value(); 200 * 200];
+    // epd.update_frame(&mut spi, &small_buffer, &mut delay)
+    //     .expect("err frame update 1");
+    for byte in display.get_mut_buffer() {
+        *byte = TriColor::Chromatic.get_byte_value();
+    }
 
     epd.update_frame(&mut spi, display.buffer(), &mut delay)
         .expect("epd update frame err");
     epd.display_frame(&mut spi, &mut delay)
         .expect("err displaying updated frame");
-
-    delay.delay_millis(5000);
 
     // Set the EPD to sleep
     println!("Sleeping EPD");
