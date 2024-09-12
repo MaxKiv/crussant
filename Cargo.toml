@@ -1,12 +1,12 @@
 [package]
-name = "hello_world"
+name = "crussant"
 version = "0.1.0"
-authors = ["Sergio Gasquez <sergio.gasquez@gmail.com>"]
+authors = ["Max Kivits <maxkivits42@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-esp-hal = { version = "0.19.0", features = ["esp32c3", "embedded-hal-02"] }
+esp-hal = { version = "0.20.1", features = ["esp32c3"] }
 esp-backtrace = { version = "0.13.0", features = [
     "esp32c3",
     "panic-handler",
@@ -14,11 +14,26 @@ esp-backtrace = { version = "0.13.0", features = [
     "println",
 ] }
 esp-println = { version = "0.10.0", features = ["esp32c3"] }
+embassy-time = "0.3.2"
+embassy-sync = "0.6.0"
+embassy-executor = { version = "0.6.0", features = [
+    "integrated-timers"
+]}
+esp-hal-embassy = { version = "0.3.0", features = [
+    "executors",
+    "esp32c3",
+] }
+
+rtt-target = "0.5.0"
+epd-waveshare = { version = "0.5.0", features = ["graphics"] }
 embedded-graphics = "0.8.0"
 embedded-graphics-core = "0.4.0"
-epd-waveshare = { version = "0.5.0", features = ["graphics"] }
-rtt-target = "0.5.0"
 
 # Profile overrides to always build esp-hal in release mode
 [profile.dev.package."esp-hal"]
 opt-level = 3
+
+# Get a new version of these crates, so that I can blindly copy paste from an example
+[patch.crates-io]
+esp-hal = { git = "https://github.com/esp-rs/esp-hal.git", rev = "208339ddeb5b0747d1403d611d9c8718f5bf4f08" }
+esp-hal-embassy = { git = "https://github.com/esp-rs/esp-hal.git", rev = "208339ddeb5b0747d1403d611d9c8718f5bf4f08" }

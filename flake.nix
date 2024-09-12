@@ -73,10 +73,14 @@
           ];
         };
 
-        rustToolchain = pkgs.pkgsBuildHost.rust-bin.stable.latest.default.override {
-          extensions = [ "llvm-tools-preview" ];
+        # rustToolchain = pkgs.pkgsBuildHost.rust-bin.nightly.latest.default.override {
+        #   extensions = [ "llvm-tools-preview rust-src" ];
+        #   targets = [ crossSystem ];
+        # };
+        rustToolchain = pkgs.pkgsBuildHost.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
+          extensions = [ "llvm-tools-preview" "rust-src" ];
           targets = [ crossSystem ];
-        };
+        });
 
         craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
 
@@ -264,7 +268,7 @@
                   done
                 '';
             in
-            commonArgs.buildInputs
+              commonArgs.buildInputs
             ++ [
               (mkBinOnlyWrapper rustToolchain)
               pkgs.cargo-espflash # Serial flasher utilities for Espressif devices, based loosely on esptool.py.
@@ -275,26 +279,6 @@
             ];
         };
 
-        # devShells = {
-        #   default =
-        #     pkgs.mkShell {
-        #       buildInputs = with pkgs;
-        #         let
-        #           # get a native compiler toolchain with the right extensions
-        #           rustToolchain = pkgs.rust-bin.beta.latest.default.override {
-        #             extensions = [ "rust-src" "llvm-tools-preview" ];
-        #           };
-        #         in
-        #         [
-        #           rustToolchain
-        #           rustfmt
-        #           clippy
-        #           cargo-generate
-        #           cargo-binutils
-        #         ];
-        #     };
-        # };
-        #
         formatter = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
       }
     );
