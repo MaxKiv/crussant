@@ -26,7 +26,7 @@ enabled = true
 halt_afterwards = false
 
 [default.rtt]
-enabled = false
+enabled = true
 
 [default.gdb]
 enabled = false
