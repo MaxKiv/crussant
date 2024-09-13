@@ -2,9 +2,10 @@
 #![no_main]
 
 mod blink;
+mod button;
 mod epd;
 
-use crate::blink::blink_task;
+use crate::{blink::blink_task, button::button_task};
 use embassy_executor::Spawner;
 use esp_backtrace as _;
 use esp_hal::{
@@ -29,7 +30,9 @@ async fn main(spawner: Spawner) {
 
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let led = io.pins.gpio3;
+    let button = io.pins.gpio9;
 
     info!("spawning tasks");
     spawner.spawn(blink_task(led.degrade())).unwrap();
+    spawner.spawn(button_task(button.degrade())).unwrap();
 }
