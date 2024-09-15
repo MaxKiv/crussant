@@ -21,6 +21,7 @@ esp-println = { version = "0.10.0", features = ["esp32c3"] }
 embassy-time = "0.3.2"
 embassy-sync = "0.6.0"
 embassy-executor = { version = "0.6.0", features = [
+    "task-arena-size-81920",
     "integrated-timers"
 ] }
 esp-hal-embassy = { version = "0.3.0", features = [
@@ -29,9 +30,13 @@ esp-hal-embassy = { version = "0.3.0", features = [
     # "defmt",
 ] }
 
+# epd-waveshare = { version = "0.5.0", features = ["graphics"], path = "/home/max/git/epd-waveshare" }
 epd-waveshare = { version = "0.5.0", features = ["graphics"] }
+
 embedded-graphics = "0.8.0"
 embedded-graphics-core = "0.4.0"
+fugit = "0.3.7"
+embedded-hal = "1.0.0"
 
 # deferred formatting logging
 # NOTE: adapt .cargo/config.toml too
