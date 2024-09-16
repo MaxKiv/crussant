@@ -1,8 +1,8 @@
 use core::sync::atomic::AtomicU32;
 
+use crate::info;
 use embassy_time::Timer;
 use esp_hal::gpio::{ErasedPin, Level, Output};
-use esp_println::println as info;
 
 pub const LED_BLINK_SPEEDS: [u64; 3] = [1, 2, 4];
 

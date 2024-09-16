@@ -1,15 +1,17 @@
 #![no_std]
 #![no_main]
 
+mod adc;
 mod blink;
 mod button;
 mod epd;
 
-use crate::{blink::blink_task, button::button_task, epd::epd_task};
+use crate::{adc::adc_task, blink::blink_task, button::button_task};
 use embassy_executor::Spawner;
 use epd_waveshare::prelude::WaveshareDisplay;
 use esp_backtrace as _;
 use esp_hal::{
+    analog::adc::{Adc, AdcConfig},
     clock::CpuClock,
     gpio::{Input, Io, Level, Pin},
 };
@@ -27,14 +29,23 @@ async fn main(spawner: Spawner) {
 
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let led = io.pins.gpio3; // Green LED on my T8-C3
-    let button = io.pins.gpio8; // Attached to button
-                                // EPD pins
+                             // EPD pins
     info!("initializing embassy");
     esp_hal_embassy::init(systimer.alarm0);
 
     info!("spawning tasks");
     spawner.spawn(blink_task(led.degrade())).unwrap();
+
+    let button = io.pins.gpio8; // Attached to button
     spawner.spawn(button_task(button.degrade())).unwrap();
+
+    let mut adc1_config = AdcConfig::new();
+    let adc_pin = adc1_config.enable_pin(
+        io.pins.gpio0,
+        esp_hal::analog::adc::Attenuation::Attenuation11dB,
+    );
+    let adc1 = Adc::new(peripherals.ADC1, adc1_config);
+    spawner.spawn(adc_task(adc1, adc_pin)).unwrap();
 
     // let sclk = io.pins.gpio6; // SPI clock pin
     // let miso = io.pins.gpio2; // Master In Slave Out pin

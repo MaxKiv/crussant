@@ -1,6 +1,6 @@
+use crate::info;
 use embassy_time::{Duration, Timer};
 use esp_hal::gpio::{ErasedPin, Input};
-use esp_println::println as info;
 
 use crate::blink::{LED_BLINK_SPEEDS, LED_IDX};
 

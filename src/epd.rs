@@ -1,3 +1,4 @@
+use crate::info;
 use embassy_time::Timer;
 use epd_waveshare::{
     epd1in54b,
@@ -9,7 +10,6 @@ use esp_hal::{
     peripherals::SPI2,
     spi::{master::Spi, SpiMode},
 };
-use esp_println::println as info;
 use fugit::HertzU32;
 
 #[embassy_executor::task]
