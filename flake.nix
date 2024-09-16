@@ -12,7 +12,7 @@
 # https://github.com/TwentyTwoHW/portal-software/blob/b8c4e27c138d3c980d051b8eb2a61fbc27604685/flake.nix
 # 👉 https://github.com/oddlama/nrf-template/blob/0db6cfee33cd1557517b90efbf248b486d2d247f/flake.nix
 {
-  description = "Embedded Hello world rust program cross compiled with nix";
+  description = "Nix flake to provide a rust toolchain to cross compile for ESP and ARM";
 
   inputs = {
     # Nix wrapper lib around buildRustPackage, that fixes caching and incremental builds
@@ -86,9 +86,9 @@
         rust_toolchain_arm = pkgs.pkgsBuildHost.rust-bin.selectLatestNightlyWith (toolchain:
           toolchain.default.override {
             extensions = rust_toolchain_extentions;
-            targets = [cross_system_esp];
+            targets = [cross_system_arm];
           });
-        default_rust_toolchain = rust_toolchain_esp;
+        default_rust_toolchain = rust_toolchain_arm;
 
         # TODO add ability for crane to take ARM toolchain here
         craneLib = (crane.mkLib pkgs).overrideToolchain rust_toolchain_esp;
