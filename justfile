@@ -1,5 +1,8 @@
+build:
+  cargo build
+
 run:
-  cargo espflash flash --monitor
+  cargo run
 
 data:
   xdg-open ./data/esp32c3-schematic.pdf
