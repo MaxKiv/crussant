@@ -1,5 +1,8 @@
 run:
-  cargo espflash flash --monitor
+
+
+dmesg:
+  sudo dmesg --follow
 
 data:
   xdg-open ./data/esp32c3-schematic.pdf

@@ -1,0 +1,61 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1728031656,
+        "narHash": "sha256-JXumn7X+suKEcehp4rchSvBzIboqyybQ5bLK4wk7gQU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "eeeb90a1dd3c9bea3afdbc76fd34d0fb2a727c7a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "pico-sdk": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1723125278,
+        "narHash": "sha256-d6mEjuG8S5jvJS4g8e90gFII3sEqUVlT2fgd9M9LUkA=",
+        "owner": "raspberrypi",
+        "repo": "pico-sdk",
+        "rev": "efe2103f9b28458a1615ff096054479743ade236",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raspberrypi",
+        "repo": "pico-sdk",
+        "type": "github"
+      }
+    },
+    "picotool-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1725273585,
+        "narHash": "sha256-DM0YYuucur4zHsC4rX/z3mJO46lK2bQoDKpa9Jn6Ic0=",
+        "owner": "raspberrypi",
+        "repo": "picotool",
+        "rev": "bf33c6ddd756c3961c7a13b000859b71e825ee74",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raspberrypi",
+        "repo": "picotool",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "pico-sdk": "pico-sdk",
+        "picotool-src": "picotool-src"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

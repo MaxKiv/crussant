@@ -43,6 +43,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    picotool.url = "path:./nix/picotool";
+
   };
 
   outputs = {
@@ -52,6 +54,7 @@
     flake-utils,
     rust-overlay,
     devshell,
+    picotool,
     ...
   } @ inputs:
     flake-utils.lib.eachDefaultSystem (
@@ -235,6 +238,10 @@
               pkgs.gdb
               pkgs.rust-analyzer
               pkgs.cargo-binutils
+              pkgs.pyocd # Python library for programming and debugging Arm Cortex-M microcontrollers
+
+              # pkgs.picotool # Tool for interacting with RP2040/2350 devices in BOOTSEL mode, or with their binaries
+              picotool.packages.x86_64-linux.default # Our own updated version
             ];
         };
 
