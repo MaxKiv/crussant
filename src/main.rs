@@ -1,71 +1,93 @@
+//! # GPIO 'Blinky' Example
+//!
+//! This application demonstrates how to control a GPIO pin on the rp235x.
+//!
+//! It may need to be adapted to your particular board layout and/or pin assignment.
+//!
+//! See the `Cargo.toml` file for Copyright and license details.
+
 #![no_std]
 #![no_main]
 
-mod adc;
-mod blink;
-mod button;
-mod epd;
+// Ensure we halt the program on panic (if we don't mention this crate it won't
+// be linked)
+use panic_halt as _;
 
-use crate::{adc::adc_task, blink::blink_task, button::button_task};
-use embassy_executor::Spawner;
-use epd_waveshare::prelude::WaveshareDisplay;
-use esp_backtrace as _;
-use esp_hal::{
-    analog::adc::{Adc, AdcConfig},
-    clock::CpuClock,
-    gpio::{Input, Io, Level, Pin},
-};
-use esp_println::println as info;
+// Alias for our HAL crate
+use rp235x_hal as hal;
 
-#[esp_hal_embassy::main]
-async fn main(spawner: Spawner) {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
-    let systimer = esp_hal::timer::systimer::SystemTimer::new(peripherals.SYSTIMER)
-        .split::<esp_hal::timer::systimer::Target>();
+// Some things we need
+use embedded_hal::delay::DelayNs;
+use embedded_hal::digital::OutputPin;
 
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let led = io.pins.gpio3; // Green LED on my T8-C3
-                             // EPD pins
-    info!("initializing embassy");
-    esp_hal_embassy::init(systimer.alarm0);
+/// Tell the Boot ROM about our application
+#[link_section = ".start_block"]
+#[used]
+pub static IMAGE_DEF: hal::block::ImageDef = hal::block::ImageDef::secure_exe();
 
-    info!("spawning tasks");
-    spawner.spawn(blink_task(led.degrade())).unwrap();
+/// External high-speed crystal on the Raspberry Pi Pico 2 board is 12 MHz.
+/// Adjust if your board has a different frequency
+const XTAL_FREQ_HZ: u32 = 12_000_000u32;
 
-    let button = io.pins.gpio8; // Attached to button
-    spawner.spawn(button_task(button.degrade())).unwrap();
+/// Entry point to our bare-metal application.
+///
+/// The `#[hal::entry]` macro ensures the Cortex-M start-up code calls this function
+/// as soon as all global variables and the spinlock are initialised.
+///
+/// The function configures the rp235x peripherals, then toggles a GPIO pin in
+/// an infinite loop. If there is an LED connected to that pin, it will blink.
+#[hal::entry]
+fn main() -> ! {
+    // Grab our singleton objects
+    let mut pac = hal::pac::Peripherals::take().unwrap();
 
-    let mut adc1_config = AdcConfig::new();
-    let adc_pin = adc1_config.enable_pin(
-        io.pins.gpio0,
-        esp_hal::analog::adc::Attenuation::Attenuation11dB,
+    // Set up the watchdog driver - needed by the clock setup code
+    let mut watchdog = hal::Watchdog::new(pac.WATCHDOG);
+
+    // Configure the clocks
+    let clocks = hal::clocks::init_clocks_and_plls(
+        XTAL_FREQ_HZ,
+        pac.XOSC,
+        pac.CLOCKS,
+        pac.PLL_SYS,
+        pac.PLL_USB,
+        &mut pac.RESETS,
+        &mut watchdog,
+    )
+    .unwrap();
+
+    let mut timer = hal::Timer::new_timer0(pac.TIMER0, &mut pac.RESETS, &clocks);
+
+    // The single-cycle I/O block controls our GPIO pins
+    let sio = hal::Sio::new(pac.SIO);
+
+    // Set the pins to their default state
+    let pins = hal::gpio::Pins::new(
+        pac.IO_BANK0,
+        pac.PADS_BANK0,
+        sio.gpio_bank0,
+        &mut pac.RESETS,
     );
-    let adc1 = Adc::new(peripherals.ADC1, adc1_config);
-    spawner.spawn(adc_task(adc1, adc_pin)).unwrap();
 
-    // let sclk = io.pins.gpio6; // SPI clock pin
-    // let miso = io.pins.gpio2; // Master In Slave Out pin
-    // let mosi = io.pins.gpio7; // Master Out Slave In pi
-    // let cs = io.pins.gpio10; // EPD chip select pin
-    // let busy_in = io.pins.gpio9; // EPD busy pin
-    // let dc = io.pins.gpio0; // EPD Data/Command pin
-    // let rst = io.pins.gpio1; // EPD reset pin
-    // spawner
-    //     .spawn(epd_task(
-    //         peripherals.SPI2,
-    //         sclk.degrade(),
-    //         mosi.degrade(),
-    //         miso.degrade(),
-    //         cs.degrade(),
-    //         busy_in.degrade(),
-    //         dc.degrade(),
-    //         rst.degrade(),
-    //     ))
-    //     .unwrap();
-
-    info!("Main task done");
+    // Configure GPIO25 as an output
+    let mut led_pin = pins.gpio25.into_push_pull_output();
+    loop {
+        led_pin.set_high().unwrap();
+        timer.delay_ms(500);
+        led_pin.set_low().unwrap();
+        timer.delay_ms(500);
+    }
 }
+
+/// Program metadata for `picotool info`
+#[link_section = ".bi_entries"]
+#[used]
+pub static PICOTOOL_ENTRIES: [hal::binary_info::EntryAddr; 3] = [
+    // hal::binary_info::rp_cargo_bin_name!(),
+    hal::binary_info::rp_cargo_version!(),
+    hal::binary_info::rp_program_description!(c"Blinky Example"),
+    // hal::binary_info::rp_cargo_homepage_url!(),
+    hal::binary_info::rp_program_build_attribute!(),
+];
+
+// End of file

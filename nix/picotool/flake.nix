@@ -32,7 +32,9 @@
 
             src = picotool-src;
 
-            buildInputs = [ pkgs.cmake pkgs.gcc pkgs.gnumake ]; # Example dependencies
+            nativeBuildInputs = [ pkgs.pkg-config ];
+
+            buildInputs = [ pkgs.cmake pkgs.gcc pkgs.gnumake pkgs.libusb1 ]; # Example dependencies
 
             # Set PICO_SDK_PATH during the CMake configuration
             cmakeFlags = [

@@ -66,10 +66,12 @@
         # Replace with the system you want to build for
         cross_system_esp = "riscv32imc-unknown-none-elf";
         cross_system_arm = "thumbv7m-none-eabi";
+        cross_system_rp = "thumbv8m.main-none-eabihf";
 
         # Qemu binary required to simulate the above system
         qemu_binary_esp = "qemu-system-riscv32";
         qemu_binary_arm = "qemu-system-arm";
+        qemu_binary_rp = "qemu-system-arm";
 
         pkgs = import nixpkgs {
           inherit localSystem;
@@ -89,9 +91,14 @@
         rust_toolchain_arm = pkgs.pkgsBuildHost.rust-bin.selectLatestNightlyWith (toolchain:
           toolchain.default.override {
             extensions = rust_toolchain_extentions;
-            targets = [cross_system_esp];
+            targets = [cross_system_arm];
           });
-        default_rust_toolchain = rust_toolchain_esp;
+        rust_toolchain_rp = pkgs.pkgsBuildHost.rust-bin.selectLatestNightlyWith (toolchain:
+          toolchain.default.override {
+            extensions = rust_toolchain_extentions;
+            targets = [cross_system_rp];
+          });
+        default_rust_toolchain = rust_toolchain_rp;
 
         # TODO add ability for crane to take ARM toolchain here
         craneLib = (crane.mkLib pkgs).overrideToolchain rust_toolchain_esp;
@@ -157,7 +164,7 @@
 
           # Tell cargo which target we want to build (so it doesn't default to the build system).
           # We can either set a cargo flag explicitly with a flag or with an environment variable.
-          cargoExtraArgs = "--target ${cross_system_esp}";
+          cargoExtraArgs = "--target ${cross_system_rp}";
           # CARGO_BUILD_TARGET = "aarch64-unknown-linux-gnu";
 
           # Tell cargo about the linker and an optional emulater. So they can be used in `cargo build`
@@ -233,7 +240,6 @@
             commonArgs.buildInputs
             ++ [
               (mkBinOnlyWrapper default_rust_toolchain)
-              pkgs.cargo-espflash # Serial flasher utilities for Espressif devices, based loosely on esptool.py.
               pkgs.probe-rs # Cross platform flashing & debugging utilities, cargo extention from the probe.rs group
               pkgs.gdb
               pkgs.rust-analyzer
