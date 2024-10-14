@@ -241,10 +241,11 @@
             ++ [
               (mkBinOnlyWrapper default_rust_toolchain)
               pkgs.probe-rs # Cross platform flashing & debugging utilities, cargo extention from the probe.rs group
-              pkgs.gdb
-              pkgs.rust-analyzer
-              pkgs.cargo-binutils
+              pkgs.gdb # <3
+              pkgs.rust-analyzer # <3
+              pkgs.cargo-binutils # binary utils cargo edition
               pkgs.pyocd # Python library for programming and debugging Arm Cortex-M microcontrollers
+              pkgs.renode-unstable # CLI SoC simulator tool
 
               # pkgs.picotool # Tool for interacting with RP2040/2350 devices in BOOTSEL mode, or with their binaries
               picotool.packages.x86_64-linux.default # Our own updated version

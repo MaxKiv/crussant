@@ -1,6 +1,7 @@
-//! # GPIO 'Blinky' Example
+//! # I²C Example
 //!
-//! This application demonstrates how to control a GPIO pin on the rp235x.
+//! This application demonstrates how to talk to I²C devices with an RP235x.
+//! in an Async environment.
 //!
 //! It may need to be adapted to your particular board layout and/or pin assignment.
 //!
@@ -17,8 +18,19 @@ use panic_halt as _;
 use rp235x_hal as hal;
 
 // Some things we need
-use embedded_hal::delay::DelayNs;
-use embedded_hal::digital::OutputPin;
+use hal::{
+    fugit::RateExtU32,
+    gpio::bank0::{Gpio20, Gpio21},
+    gpio::{FunctionI2C, Pin, PullUp},
+    i2c::Controller,
+    pac::interrupt,
+    Clock, I2C,
+};
+
+// Import required types & traits.
+use embassy_executor::Executor;
+use embedded_hal_async::i2c::I2c;
+use static_cell::StaticCell;
 
 /// Tell the Boot ROM about our application
 #[link_section = ".start_block"]
@@ -29,16 +41,17 @@ pub static IMAGE_DEF: hal::block::ImageDef = hal::block::ImageDef::secure_exe();
 /// Adjust if your board has a different frequency
 const XTAL_FREQ_HZ: u32 = 12_000_000u32;
 
-/// Entry point to our bare-metal application.
-///
-/// The `#[hal::entry]` macro ensures the Cortex-M start-up code calls this function
-/// as soon as all global variables and the spinlock are initialised.
-///
-/// The function configures the rp235x peripherals, then toggles a GPIO pin in
-/// an infinite loop. If there is an LED connected to that pin, it will blink.
-#[hal::entry]
-fn main() -> ! {
-    // Grab our singleton objects
+/// Bind the interrupt handler with the peripheral
+#[interrupt]
+unsafe fn I2C0_IRQ() {
+    use hal::async_utils::AsyncPeripheral;
+    I2C::<hal::pac::I2C0, (Gpio20, Gpio21), Controller>::on_interrupt();
+}
+
+/// The function configures the RP235x peripherals, then performs a single I²C
+/// write to a fixed address.
+#[embassy_executor::task]
+async fn demo() {
     let mut pac = hal::pac::Peripherals::take().unwrap();
 
     // Set up the watchdog driver - needed by the clock setup code
@@ -54,9 +67,8 @@ fn main() -> ! {
         &mut pac.RESETS,
         &mut watchdog,
     )
+    .ok()
     .unwrap();
-
-    let mut timer = hal::Timer::new_timer0(pac.TIMER0, &mut pac.RESETS, &clocks);
 
     // The single-cycle I/O block controls our GPIO pins
     let sio = hal::Sio::new(pac.SIO);
@@ -69,24 +81,53 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    // Configure GPIO25 as an output
-    let mut led_pin = pins.gpio25.into_push_pull_output();
-    loop {
-        led_pin.set_high().unwrap();
-        timer.delay_ms(500);
-        led_pin.set_low().unwrap();
-        timer.delay_ms(500);
+    // Configure two pins as being I²C, not GPIO
+    let sda_pin: Pin<_, FunctionI2C, PullUp> = pins.gpio20.reconfigure();
+    let scl_pin: Pin<_, FunctionI2C, PullUp> = pins.gpio21.reconfigure();
+
+    // Create the I²C drive, using the two pre-configured pins. This will fail
+    // at compile time if the pins are in the wrong mode, or if this I²C
+    // peripheral isn't available on these pins!
+    let mut i2c = hal::I2C::new_controller(
+        pac.I2C0,
+        sda_pin,
+        scl_pin,
+        400.kHz(),
+        &mut pac.RESETS,
+        clocks.system_clock.freq(),
+    );
+
+    // Unmask the interrupt in the NVIC to let the core wake up & enter the interrupt handler.
+    // Each core has its own NVIC so these needs to executed from the core where the IRQ are
+    // expected.
+    unsafe {
+        cortex_m::peripheral::NVIC::unpend(hal::pac::Interrupt::I2C0_IRQ);
+        cortex_m::peripheral::NVIC::unmask(hal::pac::Interrupt::I2C0_IRQ);
     }
+
+    // Asynchronously write three bytes to the I²C device with 7-bit address 0x2C
+    i2c.write(0x76u8, &[1, 2, 3]).await.unwrap();
+
+    // Demo finish - just loop until reset
+    core::future::pending().await
+}
+
+/// Entry point to our bare-metal application.
+#[hal::entry]
+fn main() -> ! {
+    static EXECUTOR: StaticCell<Executor> = StaticCell::new();
+    let executor = EXECUTOR.init(Executor::new());
+    executor.run(|spawner| spawner.spawn(demo()).unwrap());
 }
 
 /// Program metadata for `picotool info`
 #[link_section = ".bi_entries"]
 #[used]
-pub static PICOTOOL_ENTRIES: [hal::binary_info::EntryAddr; 3] = [
-    // hal::binary_info::rp_cargo_bin_name!(),
+pub static PICOTOOL_ENTRIES: [hal::binary_info::EntryAddr; 5] = [
+    hal::binary_info::rp_cargo_bin_name!(),
     hal::binary_info::rp_cargo_version!(),
-    hal::binary_info::rp_program_description!(c"Blinky Example"),
-    // hal::binary_info::rp_cargo_homepage_url!(),
+    hal::binary_info::rp_program_description!(c"I²C Async Example"),
+    hal::binary_info::rp_cargo_homepage_url!(),
     hal::binary_info::rp_program_build_attribute!(),
 ];
 
