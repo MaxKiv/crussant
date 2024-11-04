@@ -5,10 +5,12 @@ set dotenv-load := true
 default:
     @just --list
 
+# helper to centralize cargo invocations
 [private]
 cargo +args:
     cargo {{args}}
-#     cargo +nightly {{args}}
+# example: run all commands as release
+#     cargo {{args}} --release
 
 # Generate Cargo.lock
 generate-lockfile:
@@ -73,6 +75,10 @@ test +args='': (build-tests args)
 # Run tests for all feature combinations
 test-all-feature-combinations: (build-tests-all-feature-combinations)
     @just cargo hack --feature-powerset test --target=x86_64-unknown-linux-gnu
+
+# Run debug
+run *args: (build-release args)
+    @just cargo run --frozen {{ args }}
 
 # Run release
 run-release *args: (build-release args)

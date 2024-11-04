@@ -1,5 +1,12 @@
+#[toolchain]
+#channel = "stable"
+#components = ["rustfmt", "clippy"]
+#targets = ["riscv32imc-unknown-none-elf"]
+#profile = "minimal"
+
 [toolchain]
-channel = "stable"
-components = ["rustfmt", "clippy"]
-targets = ["riscv32imc-unknown-none-elf"]
-profile = "minimal"
+channel = "nightly"
+components = [ "llvm-tools-preview" ]
+targets = ["riscv32imc-unknown-none-elf" ]
+profile = "default"
+

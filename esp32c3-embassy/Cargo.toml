@@ -1,67 +1,67 @@
 [package]
 name = "esp32c3-embassy"
-version = { workspace = true }
-authors = { workspace = true }
-edition = { workspace = true }
+version = {  }
+authors = {  }
+edition = {  }
 description = "An async firmware for ESP32-C3 for reading and displaying sensor values using Embassy"
-readme = { workspace = true }
-homepage = { workspace = true }
-repository = { workspace = true }
+readme = {  }
+homepage = {  }
+repository = {  }
 license = "MPL-2.0"
-keywords = { workspace = true }
-categories = { workspace = true }
-publish = { workspace = true }
-exclude = { workspace = true }
+keywords = {  }
+categories = {  }
+publish = {  }
+exclude = {  }
 
 [features]
 default = []
 
 [dependencies]
 # Embassy
-embassy-executor = { workspace = true, features = ["task-arena-size-81920"] }
-embassy-sync = { workspace = true }
-embassy-time = { workspace = true, features = ["generic-queue"] }
-embassy-net = { workspace = true, features = ["dhcpv4", "dns", "tcp", "udp"] }
+embassy-executor = { features = ["task-arena-size-81920"] }
+embassy-sync = {  }
+embassy-time = { features = ["generic-queue"] }
+embassy-net = { features = ["dhcpv4", "dns", "tcp", "udp"] }
 
 # Hardware Abstraction Layer
-embedded-hal = { workspace = true }
-embedded-hal-async = { workspace = true }
-embedded-hal-bus = { workspace = true, features = ["async"] }
-embedded-io-async = { workspace = true }
+embedded-hal = {  }
+embedded-hal-async = {  }
+embedded-hal-bus = { features = ["async"] }
+embedded-io-async = {  }
 
 # ESP specifics
-esp-hal = { workspace = true, features = ["esp32c3", "async"] }
-esp-hal-embassy = { workspace = true, features = ["executors"] }
-esp-backtrace = { workspace = true, features = ["esp32c3", "panic-handler", "exception-handler", "println"] }
-esp-println = { workspace = true, features = ["esp32c3", "log", "uart", "colors"] }
-esp-wifi = { workspace = true, features = ["esp32c3", "wifi", "async", "tcp", "ipv4", "dhcpv4", "embassy-net"] }
+esp-hal = { features = ["esp32c3", "async"] }
+esp-hal-embassy = { features = ["executors"] }
+esp-backtrace = { features = ["esp32c3", "panic-handler", "exception-handler", "println"] }
+esp-println = { features = ["esp32c3", "log", "uart", "colors"] }
+esp-wifi = { features = ["esp32c3", "wifi", "async", "tcp", "ipv4", "dhcpv4", "embassy-net"] }
 
 # Logging
-log = { workspace = true }
+log = {  }
 
 # Sensor
-bme280-rs = { workspace = true, features = ["async", "uom"] }
-uom = { workspace = true, features = ["f32", "si"] }
+bme280-rs = { features = ["async", "uom"] }
+uom = { features = ["f32", "si"] }
 
 # Display
-waveshare-154bv2-rs = { workspace = true, features = ["async", "draw-target"] }
-embedded-graphics = { workspace = true }
-embedded-layout = { workspace = true }
+waveshare-154bv2-rs = { features = ["async", "draw-target"] }
+embedded-graphics = {  }
+embedded-layout = {  }
 
 # Static objects
-static_cell = { workspace = true }
+static_cell = {  }
 
 # Heapless data types
-heapless = { workspace = true }
+heapless = {  }
 
 # Time
-time = { workspace = true }
+time = {  }
 
 # HTTP
-reqwless = { workspace = true, features = ["embedded-tls", "log"] }
+reqwless = { features = ["embedded-tls", "log"] }
 
 # Random
-rand_core = { workspace = true }
+rand_core = {  }
 
 [lints]
-workspace = true
+

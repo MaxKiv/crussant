@@ -1,9 +1,9 @@
-ESP32-C3 Embassy
+Crussant
 ====
 
 A Rust async firmware for ESP32-C3 for reading and displaying sensor values using Embassy
 
-<https://gitlab.com/claudiomattera/esp32c3-embassy>
+<https://gitlab.com/maxkiv/crussant>
 
 [![](./display-th.jpg)](./display.jpg)
 
@@ -17,7 +17,8 @@ The firmware runs on a [ESP32-C3] microcontroller, samples environment data (tem
 
 In particular:
 
-* It uses [Embassy][embassy] as a general framework, and makes everything async, including communicating with sensor and display over I²C and SPI with [`embedded-hal-async`][embedded-hal-async].
+* It uses [Embassy][embassy] as an async framework, all communication with the
+sensor and display over I²C and SPI are async with [`embedded-hal-async`][embedded-hal-async].
 * It is implemented on bare metal with `no_std` and without `alloc`.
 * It is up-to-date with the latest crate versions (as of 2024-06-23).
 * It uses [`reqwless`][reqwless] for HTTP requests and TLS.
