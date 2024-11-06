@@ -1,5 +1,5 @@
 [target.riscv32imc-unknown-none-elf]
-runner = "espflash flash --baud 1152000 --monitor"
+runner = "espflash flash --baud 1152000 --monitor --log-format defmt"
 
 [build]
 target = "riscv32imc-unknown-none-elf"
@@ -8,16 +8,20 @@ rustflags = [
   "-C", "link-arg=-Tlinkall.x",
 
   # This is required for WiFi
-  "-C", "link-arg=-Trom_functions.x",
+  # "-C", "link-arg=-Trom_functions.x",
 
   # Required to obtain backtraces (e.g. when using the "esp-backtrace" crate.)
   # NOTE: May negatively impact performance of produced code
   "-C", "force-frame-pointers",
+
+  # Require for defmt logging
+  "-C", "link-arg=-Tdefmt.x",
 ]
 
 [env]
-ESP_LOGLEVEL = "INFO"
-RUST_LOG = "debug"
+ESP_LOG = "INFO"
+RUST_LOG = "INFO"
+DEFMT_LOG = "INFO"
 
 [profile.dev.package."esp-hal"]
-opt-level = 3 
+inherits = "release"

@@ -9,32 +9,29 @@
 #![no_std]
 #![no_main]
 
+use embassy_executor::task;
+use embassy_executor::Spawner;
+use esp_hal_embassy::main;
+
 use core::convert::Infallible;
 
-use esp_println::println;
-use log::info;
+// use log::info;
 
-use embassy_executor::Spawner;
+// use embassy_executor::Spawner;
 
 use embassy_time::Duration;
 use embassy_time::Timer;
 
-use esp_hal::clock::ClockControl;
-use esp_hal::peripherals::Peripherals;
-use esp_hal::prelude::entry;
-use esp_hal::prelude::main;
-use esp_hal::system::SystemControl;
 use esp_hal::timer::timg::TimerGroup;
-use esp_hal::timer::ErasedTimer;
-use esp_hal::timer::OneShotTimer;
-
-use esp_hal_embassy::init as initialize_embassy;
 
 use esp_backtrace as _;
+use esp_println as _;
 
-use static_cell::StaticCell;
+// use static_cell::StaticCell;
 
-mod logger;
+use defmt::info;
+
+// mod logger;
 
 /// Duration of deep sleep
 const DEEP_SLEEP_DURATION: Duration = Duration::from_secs(300);
@@ -46,9 +43,9 @@ const AWAKE_PERIOD: Duration = Duration::from_secs(3);
 const LOG_PERIOD: Duration = Duration::from_secs(1);
 
 /// Timers
-static TIMERS: StaticCell<[OneShotTimer<ErasedTimer>; 1]> = StaticCell::new();
+// static TIMERS: StaticCell<[OneShotTimer<ErasedTimer>; 1]> = StaticCell::new();
 
-#[embassy_executor::task]
+#[task]
 async fn alive_task() {
     loop {
         info!("Hello world from embassy using esp-hal-async!");
@@ -59,20 +56,14 @@ async fn alive_task() {
 /// Main task
 #[main]
 async fn main(spawner: Spawner) {
-    logger::setup();
+    // logger::setup();
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
+    // let peripherals = Peripherals::take();
 
-    let clocks = ClockControl::max(system.clock_control).freeze();
-    let timg0 = TimerGroup::new(peripherals.TIMG1, &clocks, None);
-    let timer0 = OneShotTimer::new(timg0.timer0.into());
-    let timers = [timer0];
-    let timers = TIMERS.init(timers);
-
-    println!("Initialising Embassy");
     info!("Initialising Embassy");
-    initialize_embassy(&clocks, timers);
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    esp_hal_embassy::init(timg0.timer0);
 
     // let rng = Rng::new(peripherals.RNG);
 
