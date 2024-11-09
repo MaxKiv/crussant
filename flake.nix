@@ -50,6 +50,7 @@
             rust-analyzer # Rust LSP
             fritzing  # cute schematic drawing software
             cargo-espflash # Serial flasher utilities for Espressif devices, based loosely on esptool.py.
+            cargo-binutils # cargo wrappe rfor llvm-tools
           ];
         };
       }

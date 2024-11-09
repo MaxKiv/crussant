@@ -56,6 +56,18 @@ build +args='': fetch
 build-release +args='': fetch
     @just cargo build --frozen --release {{args}}
 
+# Check binary size
+size +args='': fetch
+    @just cargo size --release -- -A -x -d {{args}}
+
+# list largest symbols
+symbols +args='': fetch
+    @just cargo nm --release -- --print-size --size-sort | less
+
+# Build .bin format
+strip +args='': fetch
+    @just cargo strip --release -- --strip-all -o Crussant.bin
+
 # Build for all feature combinations
 build-all-feature-combinations: (check-all-feature-combinations)
     @just cargo hack --feature-powerset --no-dev-deps build
