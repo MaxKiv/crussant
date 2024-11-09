@@ -9,13 +9,18 @@
 #![no_std]
 #![no_main]
 
+use blink::blink_task;
 use embassy_executor::task;
+use embassy_executor::SpawnToken;
 use embassy_executor::Spawner;
+use esp_hal::gpio::Io;
+use esp_hal::gpio::Pin;
 use esp_hal_embassy::main;
 
 use core::convert::Infallible;
 
-// use log::info;
+use log::info;
+use log::trace;
 
 // use embassy_executor::Spawner;
 
@@ -29,12 +34,10 @@ use esp_println as _;
 
 // use static_cell::StaticCell;
 
-use defmt::info;
+// use defmt::info;
 
-// mod logger;
-
-/// Duration of deep sleep
-const DEEP_SLEEP_DURATION: Duration = Duration::from_secs(300);
+mod blink;
+mod logger;
 
 /// Period to wait before going to deep sleep
 const AWAKE_PERIOD: Duration = Duration::from_secs(3);
@@ -56,10 +59,12 @@ async fn alive_task() {
 /// Main task
 #[main]
 async fn main(spawner: Spawner) {
-    // logger::setup();
+    logger::setup();
+
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
-    // let peripherals = Peripherals::take();
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
+    let led = io.pins.gpio3; // Green LED on my T8-C3
 
     info!("Initialising Embassy");
     let timg0 = TimerGroup::new(peripherals.TIMG0);
@@ -67,8 +72,13 @@ async fn main(spawner: Spawner) {
 
     // let rng = Rng::new(peripherals.RNG);
 
-    info!("Spawn tasks");
+    info!("Spawning tasks");
+    info!("Spawning heartbeat task");
     spawner.must_spawn(alive_task());
+    info!("Spawning blink task");
+    spawner.must_spawn(blink_task(led.degrade()));
+    info!("Spawning sensor task");
+    spawner.must_spawn(sensor_task());
 
     info!("Stay awake for {}s", AWAKE_PERIOD.as_secs());
     Timer::after(AWAKE_PERIOD).await;
