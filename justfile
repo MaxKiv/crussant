@@ -56,6 +56,10 @@ build +args='': fetch
 build-release +args='': fetch
     @just cargo build --frozen --release {{args}}
 
+# Simulate using qemu
+simulate +args='': build
+  qemu-system-riscv32 -nographic -icount 3 -machine esp32c3 -drive file=./target/riscv32imc-unknown-none-elf/debug/Crussant,if=mtd,format=raw
+
 # Check binary size
 size +args='': fetch
     @just cargo size --release -- -A -x -d {{args}}

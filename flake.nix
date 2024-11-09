@@ -10,9 +10,11 @@
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Qemu fork of espressif that supports esp32c3, packaged by Stefan Frijters
+    qemu-espressif.url = "github:SFrijters/nix-qemu-espressif";
   };
 
-  outputs = { self, nixpkgs, flake-utils, naersk, fenix }:
+  outputs = { self, nixpkgs, flake-utils, naersk, fenix, qemu-espressif }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = (import nixpkgs) {
@@ -51,6 +53,7 @@
             fritzing  # cute schematic drawing software
             cargo-espflash # Serial flasher utilities for Espressif devices, based loosely on esptool.py.
             cargo-binutils # cargo wrappe rfor llvm-tools
+            qemu-espressif.packages.${system}.qemu-esp32c3 # Qemu fork of Espressif
           ];
         };
       }
