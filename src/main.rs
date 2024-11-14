@@ -11,14 +11,19 @@
 
 use blink::blink_task;
 use embassy_executor::task;
-use embassy_executor::SpawnToken;
 use embassy_executor::Spawner;
+use embassy_sync::blocking_mutex::raw::NoopRawMutex;
+use embassy_sync::channel::Channel;
+use esp_hal::clock::CpuClock;
 use esp_hal::gpio::Io;
 use esp_hal::gpio::Pin;
+use esp_hal::rng::Rng;
 use esp_hal_embassy::main;
+use static_cell::StaticCell;
 
 use core::convert::Infallible;
 
+use log::error;
 use log::info;
 use log::trace;
 
@@ -37,13 +42,27 @@ use esp_println as _;
 // use defmt::info;
 
 mod blink;
+
+mod clock;
+use clock::Clock;
+
+mod display;
+use display::display_task;
+
 mod logger;
+
+mod sensor;
+use sensor::sensor_task;
+use sensor::SensorReading;
 
 /// Period to wait before going to deep sleep
 const AWAKE_PERIOD: Duration = Duration::from_secs(3);
 
 /// Period to wait before going to deep sleep
 const LOG_PERIOD: Duration = Duration::from_secs(1);
+
+/// A channel between sensor sampler and display updater
+static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell::new();
 
 /// Timers
 // static TIMERS: StaticCell<[OneShotTimer<ErasedTimer>; 1]> = StaticCell::new();
@@ -61,7 +80,11 @@ async fn alive_task() {
 async fn main(spawner: Spawner) {
     logger::setup();
 
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let peripherals = esp_hal::init({
+        let mut config = esp_hal::Config::default();
+        config.cpu_clock = CpuClock::max();
+        config
+    });
 
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let led = io.pins.gpio3; // Green LED on my T8-C3
@@ -70,7 +93,16 @@ async fn main(spawner: Spawner) {
     let timg0 = TimerGroup::new(peripherals.TIMG0);
     esp_hal_embassy::init(timg0.timer0);
 
-    // let rng = Rng::new(peripherals.RNG);
+    let rng = Rng::new(peripherals.RNG);
+
+    info!("Creating Clock");
+    let clock = Clock::new();
+    info!("Now is {}", clock.now().unwrap());
+
+    info!("Create channel");
+    let channel: &'static mut _ = CHANNEL.init(Channel::new());
+    let receiver = channel.receiver();
+    let sender = channel.sender();
 
     info!("Spawning tasks");
     info!("Spawning heartbeat task");
@@ -78,7 +110,9 @@ async fn main(spawner: Spawner) {
     info!("Spawning blink task");
     spawner.must_spawn(blink_task(led.degrade()));
     info!("Spawning sensor task");
-    spawner.must_spawn(sensor_task());
+    spawner.must_spawn(sensor_task(rng, clock.clone(), sender));
+    info!("Spawning display task");
+    spawner.must_spawn(display_task(receiver));
 
     info!("Stay awake for {}s", AWAKE_PERIOD.as_secs());
     Timer::after(AWAKE_PERIOD).await;
