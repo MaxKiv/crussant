@@ -70,9 +70,9 @@ pub type SensorReading = (OffsetDateTime, Sample);
 
 #[task]
 pub async fn sensor_task(
+    sender: Sender<'static, NoopRawMutex, SensorReading, 3>,
     mut rng: Rng,
     clock: Clock,
-    sender: Sender<'static, NoopRawMutex, SensorReading, 3>,
 ) {
     info!("Create");
     info!("Initializing sensor");

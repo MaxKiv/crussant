@@ -22,12 +22,14 @@ dependencies = [
  "esp-hal",
  "esp-hal-embassy",
  "esp-println",
+ "fugit",
  "heapless",
  "log",
  "rand_core",
  "static_cell",
  "time",
  "uom",
+ "waveshare-154bv2-rs",
 ]
 
 [[package]]
@@ -1256,6 +1258,16 @@ name = "void"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
+
+[[package]]
+name = "waveshare-154bv2-rs"
+version = "0.1.0"
+dependencies = [
+ "embedded-graphics-core",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "log",
+]
 
 [[package]]
 name = "winapi-util"

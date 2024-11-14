@@ -1,3 +1,5 @@
 /target
+waveshare-154bv2-rs/target/
+
 .envrc
 .direnv/

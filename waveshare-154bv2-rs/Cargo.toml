@@ -1,18 +1,21 @@
 [package]
 name = "waveshare-154bv2-rs"
-version = {  }
-authors = {  }
-edition = {  }
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
 description = "A crate for interfacing with E-INK displays"
-readme = {  }
-homepage = {  }
-repository = {  }
+readme = "README.md"
+homepage = "https://github.com/yourusername/waveshare-154bv2-rs"
+repository = "https://github.com/yourusername/waveshare-154bv2-rs"
 license = "MIT OR Apache-2.0"
 rust-version = "1.75"
-keywords = {  }
-categories = {  }
-publish = {  }
-exclude = {  }
+keywords = ["e-ink", "embedded", "display"]
+categories = ["embedded-hal", "hardware-support", "display"]
+publish = true
+
+[lib]
+name = "waveshare_154bv2"
+path = "src/lib.rs"
 
 [features]
 default = ["blocking", "async"]
@@ -23,14 +26,17 @@ std = []
 
 [dependencies]
 # Logging
-log = {  }
+log = { version = "0.4", default-features = false }
 
 # Hardware Abstraction Layer (HAL)
-embedded-hal = { optional = true }
-embedded-hal-async = { optional = true }
+embedded-hal = { version = "1", optional = true }
+embedded-hal-async = { version = "1", optional = true }
 
 # Graphics
-embedded-graphics-core = { optional = true }
+embedded-graphics-core = { version = "0.4", optional = true }
+
+[dev-dependencies]
+# Add any dependencies required for testing here
 
 [lints]
-
+# Add custom lints configuration here if needed

@@ -70,12 +70,16 @@ esp-println = {  version = "0.12.0", default-features = false, features = [
 log = {  version = "0.4"  }
 # defmt = { version = "0.3.8" }
 
+# Compile time Duration and Instant
+fugit = "0.3.7"
+
 # Sensor
 bme280-rs = { version = "0.2", default-features = false, features = ["async", "uom"] }
 uom = { version = "0.33", default-features = false,  features = ["f32", "si"] }
 
 # Display
-# waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false,  features = ["async", "draw-target"] }
+waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false,  features = ["async", "draw-target"] }
+# waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false }
 embedded-graphics = {   version = "0.8", default-features = false }
 embedded-graphics-core = { version = "0.4", default-features = false }
 embedded-layout = { version = "0.4", default-features = false }
