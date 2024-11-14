@@ -28,6 +28,7 @@ exclude = [
     ".pre-commit-config.yaml",
     "justfile",
 ]
+build = "build.rs"
 
 [dependencies]
 # Embassy
