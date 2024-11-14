@@ -5,6 +5,10 @@ Main task
 --- 
 [ ] quickly jump to a fallible main to be able to use ? operator, like claudio does
 
+Blink task
+--- 
+[ ] use PWM peripheral to dim the LED
+
 Sensor task
 --- 
 [x] Generate a random sample

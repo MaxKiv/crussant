@@ -67,14 +67,6 @@ static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell
 /// Timers
 // static TIMERS: StaticCell<[OneShotTimer<ErasedTimer>; 1]> = StaticCell::new();
 
-#[task]
-async fn alive_task() {
-    loop {
-        info!("Hello world from embassy using esp-hal-async!");
-        Timer::after(Duration::from_millis(1_000)).await;
-    }
-}
-
 /// Main task
 #[main]
 async fn main(spawner: Spawner) {
@@ -105,8 +97,6 @@ async fn main(spawner: Spawner) {
     let sender = channel.sender();
 
     info!("Spawning tasks");
-    info!("Spawning heartbeat task");
-    spawner.must_spawn(alive_task());
     info!("Spawning blink task");
     spawner.must_spawn(blink_task(led.degrade()));
     info!("Spawning sensor task");
@@ -114,11 +104,8 @@ async fn main(spawner: Spawner) {
     info!("Spawning display task");
     spawner.must_spawn(display_task(receiver));
 
-    info!("Stay awake for {}s", AWAKE_PERIOD.as_secs());
-    Timer::after(AWAKE_PERIOD).await;
-
-    info!("Hello from main");
-    Timer::after(LOG_PERIOD).await;
+    // info!("Stay awake for {}s", AWAKE_PERIOD.as_secs());
+    // Timer::after(AWAKE_PERIOD).await;
 
     // info!("Go to sleep for {}s", DEEP_SLEEP_DURATION.as_secs());
     //
