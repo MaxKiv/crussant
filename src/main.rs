@@ -10,13 +10,16 @@
 #![no_main]
 
 use blink::blink_task;
+use clock::ClockError;
 use embassy_executor::Spawner;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_sync::channel::Channel;
 use embassy_time::Delay;
+use embassy_time::Timer;
 use embedded_hal_bus::spi::ExclusiveDevice;
 use esp_hal::clock::CpuClock;
 use esp_hal::dma::Dma;
+use esp_hal::dma::DmaBufError;
 use esp_hal::dma::DmaDescriptor;
 use esp_hal::dma::DmaPriority;
 use esp_hal::dma::DmaRxBuf;
@@ -36,14 +39,18 @@ use esp_hal::spi::master::SpiDmaBus;
 use esp_hal::spi::FullDuplexMode;
 use esp_hal::spi::SpiMode;
 use esp_hal::Async;
+
+use embassy_executor::task;
 use esp_hal_embassy::main;
 
 use fugit::RateExtU32 as _;
 
+use log::warn;
 use static_cell::StaticCell;
 
 use core::convert::Infallible;
 
+use log::debug;
 use log::error;
 use log::info;
 use log::trace;
@@ -92,9 +99,20 @@ static RX_DESCRIPTORS: StaticCell<[DmaDescriptor; DESCRIPTORS_SIZE]> = StaticCel
 /// A channel between sensor sampler and display updater
 static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell::new();
 
-/// Main task
+/// Applicatoin entry point
+/// Sets up
 #[main]
-async fn main(spawner: Spawner) {
+async fn entry(spawner: Spawner) {
+    debug!("spawning main");
+    if let Err(err) = main(&spawner).await {
+        panic!("Main exited with {err:?}");
+    } else {
+        panic!("Main exited without error");
+    }
+}
+
+/// Fallible Main task
+async fn main(spawner: &Spawner) -> Result<(), Error> {
     logger::setup();
 
     let peripherals = esp_hal::init({
@@ -130,16 +148,17 @@ async fn main(spawner: Spawner) {
 
     info!("Initialize DMA buffers");
     let (rx_buffer, rx_descriptors, tx_buffer, tx_descriptors) = dma_buffers!(32000);
-    let dma_rx_buf = DmaRxBuf::new(rx_descriptors, rx_buffer).unwrap();
-    let dma_tx_buf = DmaTxBuf::new(tx_descriptors, tx_buffer).unwrap();
-
+    let dma_rx_buf =
+        DmaRxBuf::new(rx_descriptors, rx_buffer).map_err(|err| Error::DmaBufferCreation(err))?;
+    let dma_tx_buf =
+        DmaTxBuf::new(tx_descriptors, tx_buffer).map_err(|err| Error::DmaBufferCreation(err))?;
     info!("Create SPI DMA Bus");
     let spi_dma_bus = SpiDmaBus::new(spi_dma, dma_rx_buf, dma_tx_buf);
     let spi_device = ExclusiveDevice::new(spi_dma_bus, cs, Delay);
 
     info!("Creating Clock");
     let clock = Clock::new();
-    info!("Now is {}", clock.now().unwrap());
+    info!("Now is {}", clock.now().map_err(Error::Clock)?);
 
     info!("Create channel");
     let channel: &'static mut _ = CHANNEL.init(Channel::new());
@@ -167,6 +186,11 @@ async fn main(spawner: Spawner) {
     // enter_deep_sleep(peripherals.LPWR, DEEP_SLEEP_DURATION.into());
     //
     // info!("Awoken");
+
+    loop {
+        Timer::after(Duration::MAX).await;
+    }
+    Ok(())
 }
 
 /// An error
@@ -174,6 +198,10 @@ async fn main(spawner: Spawner) {
 enum Error {
     /// An impossible error existing only to satisfy the type system
     Impossible(Infallible),
+
+    DmaBufferCreation(DmaBufError),
+
+    Clock(ClockError),
 }
 
 impl From<Infallible> for Error {

@@ -17,9 +17,9 @@ Sensor task
 
 Display task
 ---
-[ ] Log received samples
-[ ] Print something to waveshare using claudio's driver
-[ ] Get & show sensor measurement
+[x] Log received samples
+[x] Print something to waveshare using claudio's driver
+[x] Get & show sensor measurement
 [ ] Look into embedded_graphics & claudio's dashboard
 
 Sleep
@@ -34,4 +34,8 @@ Clock
 [x] Inject walltime on compilation
 [ ] Save clock in RTC fast memory so it survives deep sleep
 [ ] Get clock time from the web, see claudio
+
+BootCount
+---
+[ ] Track bootcount in non-volitale memory
 

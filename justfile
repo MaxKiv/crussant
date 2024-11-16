@@ -93,12 +93,16 @@ test-all-feature-combinations: (build-tests-all-feature-combinations)
     @just cargo hack --feature-powerset test --target=x86_64-unknown-linux-gnu
 
 # Run debug
-run *args: (build-release args)
+run *args: (build args)
     @just cargo run --frozen {{ args }}
 
 # Run release
 run-release *args: (build-release args)
     @just cargo run --frozen  --release {{ args }}
+
+# Open serial monitor
+monitor *args:
+    espflash monitor
 
 # Build documentation
 build-documentation +args='': fetch

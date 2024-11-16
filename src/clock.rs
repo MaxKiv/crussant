@@ -24,12 +24,12 @@ impl Clock {
         Clock { boot_time, offset }
     }
 
-    pub fn now(&self) -> Result<OffsetDateTime, Error> {
+    pub fn now(&self) -> Result<OffsetDateTime, ClockError> {
         let now = self.now_as_unix_timestamp();
         let utc = OffsetDateTime::from_unix_timestamp(now as i64)?;
         let local = utc
             .checked_to_offset(self.offset)
-            .ok_or(Error::InvalidInOffset)?;
+            .ok_or(ClockError::InvalidInOffset)?;
         Ok(local)
     }
 
@@ -44,7 +44,7 @@ impl Clock {
 
 /// A clock error
 #[derive(Debug)]
-pub enum Error {
+pub enum ClockError {
     /// A time component is out of range
     TimeComponentRange(#[allow(unused)] TimeComponentRange),
 
@@ -52,7 +52,7 @@ pub enum Error {
     InvalidInOffset,
 }
 
-impl From<TimeComponentRange> for Error {
+impl From<TimeComponentRange> for ClockError {
     fn from(error: TimeComponentRange) -> Self {
         Self::TimeComponentRange(error)
     }

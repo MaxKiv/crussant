@@ -28,7 +28,7 @@ use time::OffsetDateTime;
 
 use waveshare_154bv2::Color as TriColor;
 
-use crate::sensor::Sample;
+use crate::sensor::SensorReading;
 
 /// Style for black text
 pub const BLACK_STYLE: MonoTextStyle<TriColor> = MonoTextStyleBuilder::new()
@@ -47,12 +47,13 @@ pub const CHROMATIC_STYLE: MonoTextStyle<TriColor> = MonoTextStyleBuilder::new()
 /// Draw a dashboard
 pub fn draw_dashboard<DISPLAY>(
     display: &mut DISPLAY,
-    now: &OffsetDateTime,
-    sample: &Sample,
-) -> Result<(), Error>
+    sensor_reading: &SensorReading,
+) -> Result<(), DashboardError>
 where
     DISPLAY: DrawTarget<Color = TriColor, Error = Infallible>,
 {
+    let (now, sample) = sensor_reading;
+
     let display_area = display.bounding_box();
     let temperature = format_temperature(sample.temperature)?;
     let humidity = format_humidity(sample.humidity)?;
@@ -108,7 +109,7 @@ fn lay_out_update_time<'text>(now: &'text str) -> impl Drawable<Color = TriColor
 }
 
 /// Format a time as `HOUR:MINUTE`
-fn format_time(now: &OffsetDateTime) -> Result<String<5>, Error> {
+fn format_time(now: &OffsetDateTime) -> Result<String<5>, DashboardError> {
     let mut string: String<5> = String::new();
     write!(&mut string, "{:0>2}:{:0>2}", now.hour(), now.minute())?;
 
@@ -138,7 +139,7 @@ fn format_pressure(pressure: Pressure) -> Result<String<10>, FmtError> {
 
 /// An error
 #[derive(Debug)]
-pub enum Error {
+pub enum DashboardError {
     /// An impossible error existing only to satisfy the type system
     Impossible(Infallible),
 
@@ -146,13 +147,13 @@ pub enum Error {
     Fmt(#[allow(unused)] FmtError),
 }
 
-impl From<FmtError> for Error {
+impl From<FmtError> for DashboardError {
     fn from(error: FmtError) -> Self {
         Self::Fmt(error)
     }
 }
 
-impl From<Infallible> for Error {
+impl From<Infallible> for DashboardError {
     fn from(error: Infallible) -> Self {
         Self::Impossible(error)
     }
