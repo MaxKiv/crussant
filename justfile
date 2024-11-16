@@ -117,3 +117,8 @@ publish:
     @just cargo login "${CRATES_IO_TOKEN}"
     @just cargo publish
     @just cargo logout
+
+# Open datasheets
+data +args:
+   find ./data/{{args}} -type f -exec xdg-open {} \;
+
