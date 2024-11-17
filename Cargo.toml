@@ -34,7 +34,7 @@ build = "build.rs"
 # Embassy
 embassy-executor = { version = "0.6", default-features = false, features = [
   # "task-arena-size-81920" # for wifi
-  "task-arena-size-4096"
+  "task-arena-size-16384"
 ] }
 embassy-sync = { version = "0.6", default-features = false }
 embassy-time = { version = "0.3", default-features = false, features = ["generic-queue"] }

@@ -3,7 +3,7 @@ ToDo
 
 Main task
 --- 
-[ ] quickly jump to a fallible main to be able to use ? operator, like claudio does
+[x] quickly jump to a fallible main to be able to use ? operator, like claudio does
 
 Blink task
 --- 

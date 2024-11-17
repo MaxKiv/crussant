@@ -21,7 +21,7 @@ use crate::clock::Clock;
 
 /// Interval to wait for sensor warmup
 const WARMUP_INTERVAL: Duration = Duration::from_millis(10);
-const WAIT_INTERVAL: Duration = Duration::from_millis(500);
+const WAIT_INTERVAL: Duration = Duration::from_secs(60);
 
 /// A sample
 #[derive(Clone, Debug, Default)]

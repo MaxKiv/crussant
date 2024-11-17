@@ -55,8 +55,6 @@ use log::error;
 use log::info;
 use log::trace;
 
-// use embassy_executor::Spawner;
-
 use embassy_time::Duration;
 
 use esp_hal::timer::timg::TimerGroup;
@@ -87,15 +85,6 @@ mod dashboard;
 /// Period to wait before going to deep sleep
 const AWAKE_PERIOD: Duration = Duration::from_secs(3);
 
-/// Size of SPI DMA descriptors
-const DESCRIPTORS_SIZE: usize = 8 * 3;
-
-/// Descriptors for SPI DMA
-static DESCRIPTORS: StaticCell<[DmaDescriptor; DESCRIPTORS_SIZE]> = StaticCell::new();
-
-/// RX descriptors for SPI DMA
-static RX_DESCRIPTORS: StaticCell<[DmaDescriptor; DESCRIPTORS_SIZE]> = StaticCell::new();
-
 /// A channel between sensor sampler and display updater
 static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell::new();
 
@@ -103,7 +92,8 @@ static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell
 /// Sets up
 #[main]
 async fn entry(spawner: Spawner) {
-    debug!("spawning main");
+    logger::setup();
+    info!("spawning main");
     if let Err(err) = main(&spawner).await {
         panic!("Main exited with {err:?}");
     } else {
@@ -113,8 +103,6 @@ async fn entry(spawner: Spawner) {
 
 /// Fallible Main task
 async fn main(spawner: &Spawner) -> Result<(), Error> {
-    logger::setup();
-
     let peripherals = esp_hal::init({
         let mut config = esp_hal::Config::default();
         config.cpu_clock = CpuClock::max();
@@ -129,10 +117,10 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
 
     info!("Create PIN for Display SPI Chip Select");
     let cs = Output::new(io.pins.gpio8, Level::Low);
-    info!("Create additional Display pins");
     let busy = Input::new(io.pins.gpio9, Pull::Up);
     let rst = Output::new(io.pins.gpio10, Level::Low);
-    let dc = Output::new(io.pins.gpio19, Level::Low);
+    // This is marked as uart RxD on my T8-C3
+    let dc = Output::new(io.pins.gpio20, Level::Low);
 
     info!("Create SPI bus");
     let spi_bus = Spi::new(peripherals.SPI2, 25_u32.kHz(), SpiMode::Mode0)
@@ -148,10 +136,8 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
 
     info!("Initialize DMA buffers");
     let (rx_buffer, rx_descriptors, tx_buffer, tx_descriptors) = dma_buffers!(32000);
-    let dma_rx_buf =
-        DmaRxBuf::new(rx_descriptors, rx_buffer).map_err(|err| Error::DmaBufferCreation(err))?;
-    let dma_tx_buf =
-        DmaTxBuf::new(tx_descriptors, tx_buffer).map_err(|err| Error::DmaBufferCreation(err))?;
+    let dma_rx_buf = DmaRxBuf::new(rx_descriptors, rx_buffer).map_err(Error::DmaBufferCreation)?;
+    let dma_tx_buf = DmaTxBuf::new(tx_descriptors, tx_buffer).map_err(Error::DmaBufferCreation)?;
     info!("Create SPI DMA Bus");
     let spi_dma_bus = SpiDmaBus::new(spi_dma, dma_rx_buf, dma_tx_buf);
     let spi_device = ExclusiveDevice::new(spi_dma_bus, cs, Delay);
@@ -188,7 +174,7 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
     // info!("Awoken");
 
     loop {
-        Timer::after(Duration::MAX).await;
+        Timer::after(Duration::from_secs(1200)).await;
     }
     Ok(())
 }
