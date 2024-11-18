@@ -20,7 +20,6 @@ use embedded_hal_bus::spi::ExclusiveDevice;
 use esp_hal::clock::CpuClock;
 use esp_hal::dma::Dma;
 use esp_hal::dma::DmaBufError;
-use esp_hal::dma::DmaDescriptor;
 use esp_hal::dma::DmaPriority;
 use esp_hal::dma::DmaRxBuf;
 use esp_hal::dma::DmaTxBuf;
@@ -31,6 +30,7 @@ use esp_hal::gpio::Level;
 use esp_hal::gpio::Output;
 use esp_hal::gpio::Pin;
 use esp_hal::gpio::Pull;
+use esp_hal::i2c::I2c;
 use esp_hal::peripherals::SPI2;
 use esp_hal::rng::Rng;
 use esp_hal::spi::master::Spi;
@@ -40,7 +40,6 @@ use esp_hal::spi::FullDuplexMode;
 use esp_hal::spi::SpiMode;
 use esp_hal::Async;
 
-use embassy_executor::task;
 use esp_hal_embassy::main;
 
 use fugit::RateExtU32 as _;
@@ -88,8 +87,8 @@ const AWAKE_PERIOD: Duration = Duration::from_secs(3);
 /// A channel between sensor sampler and display updater
 static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell::new();
 
-/// Applicatoin entry point
-/// Sets up
+/// Application entry point
+/// Sets up logger and runs firmware
 #[main]
 async fn entry(spawner: Spawner) {
     logger::setup();
@@ -102,6 +101,7 @@ async fn entry(spawner: Spawner) {
 }
 
 /// Fallible Main task
+/// Spawns embassy tasks
 async fn main(spawner: &Spawner) -> Result<(), Error> {
     let peripherals = esp_hal::init({
         let mut config = esp_hal::Config::default();
@@ -115,7 +115,7 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
 
     let rng = Rng::new(peripherals.RNG);
 
-    info!("Create PIN for Display SPI Chip Select");
+    info!("Create Display and SPI Chip Select pins");
     let cs = Output::new(io.pins.gpio8, Level::Low);
     let busy = Input::new(io.pins.gpio9, Pull::Up);
     let rst = Output::new(io.pins.gpio10, Level::Low);
@@ -142,6 +142,13 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
     let spi_dma_bus = SpiDmaBus::new(spi_dma, dma_rx_buf, dma_tx_buf);
     let spi_device = ExclusiveDevice::new(spi_dma_bus, cs, Delay);
 
+    info!("Creating I2C pins");
+    let sda = io.pins.gpio2;
+    let scl = io.pins.gpio3;
+
+    info!("Creating I2C device");
+    let i2c = I2c::new_with_timeout(peripherals.I2C0, sda, scl, 400.kHz(), Some(20));
+
     info!("Creating Clock");
     let clock = Clock::new();
     info!("Now is {}", clock.now().map_err(Error::Clock)?);
@@ -159,7 +166,7 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
     info!("Spawning blink task");
     spawner.must_spawn(blink_task(led.degrade()));
     info!("Spawning sensor task");
-    spawner.must_spawn(sensor_task(sender, rng, clock.clone()));
+    spawner.must_spawn(sensor_task(sender, i2c, rng, clock.clone()));
     info!("Spawning display task");
     spawner.must_spawn(display_task(receiver, spi_device, busy, rst, dc));
 

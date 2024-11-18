@@ -1,4 +1,9 @@
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
+use embassy_time::Delay;
+use embedded_hal::i2c::I2c;
+use embedded_hdc1080_rs::Hdc1080;
+use esp_hal::i2c::I2c;
+use esp_hal::peripherals::I2C0;
 use esp_hal::rng::Rng;
 
 use embassy_executor::task;
@@ -8,6 +13,7 @@ use embassy_sync::channel::Sender;
 use embassy_time::Duration;
 use embassy_time::Timer;
 
+use esp_hal::Blocking;
 use time::OffsetDateTime;
 
 use uom::si::f32::Pressure;
@@ -71,11 +77,16 @@ pub type SensorReading = (OffsetDateTime, Sample);
 #[task]
 pub async fn sensor_task(
     sender: Sender<'static, NoopRawMutex, SensorReading, 3>,
+    // i2c: I2C0,
+    i2c: esp_hal::i2c::I2c<'static, esp_hal::peripherals::I2C0, esp_hal::Blocking>,
     mut rng: Rng,
     clock: Clock,
 ) {
-    info!("Create");
-    info!("Initializing sensor");
+    info!("Initializing hdc1080 sensor");
+    let mut hdc1080 = Hdc1080::new(i2c, Delay).unwrap();
+
+    info!("Initializing ccs881 sensor");
+
     info!(
         "Waiting {}ms for configuration to be processed",
         WARMUP_INTERVAL.as_millis()

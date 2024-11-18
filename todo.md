@@ -13,6 +13,7 @@ Sensor task
 --- 
 [x] Generate a random sample
 [ ] Connect some sensor
+[ ] add ccs881 driver
 [ ] Write a driver for the humidity sensor?
 
 Display task

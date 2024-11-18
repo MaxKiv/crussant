@@ -76,11 +76,12 @@ fugit = "0.3.7"
 # Sensor
 bme280-rs = { version = "0.2", default-features = false, features = ["async", "uom"] }
 uom = { version = "0.33", default-features = false,  features = ["f32", "si"] }
+embedded-ccs811 = { version = "0.2.0", default-features = false,  features = [] }
+embedded-hdc1080-rs = { version = "0.1.0", default-features = false,  features = [] }
 
 # Display
 # waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false,  features = ["async", "draw-target"] }
 waveshare-154bv2-rs = { git = "https://github.com/claudiomattera/esp32c3-embassy", branch = "master", features = ["async", "draw-target"]  }
-# waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false }
 embedded-graphics = {   version = "0.8", default-features = false }
 embedded-graphics-core = { version = "0.4", default-features = false }
 embedded-layout = { version = "0.4", default-features = false }

@@ -11,11 +11,13 @@ dependencies = [
  "embassy-net",
  "embassy-sync 0.6.0",
  "embassy-time",
+ "embedded-ccs811",
  "embedded-graphics",
  "embedded-graphics-core",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-bus",
+ "embedded-hdc1080-rs",
  "embedded-io-async",
  "embedded-layout",
  "esp-backtrace",
@@ -359,6 +361,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-ccs811"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52b89c844c9a3966a11bed832d371e7d219222e8f4a5254f77f9cbd81f232a81"
+dependencies = [
+ "embedded-hal 0.2.7",
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "embedded-graphics"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -425,6 +437,15 @@ checksum = "fba4268c14288c828995299e59b12babdbe170f6c6d73731af1b4648142e8605"
 dependencies = [
  "embedded-hal 1.0.0",
  "nb 1.1.0",
+]
+
+[[package]]
+name = "embedded-hdc1080-rs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7b1ec4b40e49187422cc8c8c5a1f8fa82b816ff6f3877276dde32b854a733af"
+dependencies = [
+ "embedded-hal 0.2.7",
 ]
 
 [[package]]
