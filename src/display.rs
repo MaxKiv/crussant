@@ -17,9 +17,9 @@ use esp_hal::Async;
 use uom::si::pressure::hectopascal;
 use uom::si::ratio::percent;
 use uom::si::thermodynamic_temperature::degree_celsius;
-use waveshare_154bv2::AsyncDisplay as Display;
-use waveshare_154bv2::Buffer;
-use waveshare_154bv2::Error as DisplayError;
+use waveshare_154bv2_rs::AsyncDisplay as Display;
+use waveshare_154bv2_rs::Buffer;
+use waveshare_154bv2_rs::Error as DisplayError;
 
 use crate::dashboard::draw_dashboard;
 use crate::dashboard::DashboardError;

@@ -3,7 +3,7 @@ ToDo
 
 Main task
 --- 
-[x] quickly jump to a fallible main to be able to use ? operator, like claudio does
+[x] quickly jump to a fallible main to be able to use ? operator
 
 Blink task
 --- 
@@ -37,5 +37,5 @@ Clock
 
 BootCount
 ---
-[ ] Track bootcount in non-volitale memory
+[ ] Track bootcount in non-volatile memory
 

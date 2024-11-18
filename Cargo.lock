@@ -1261,7 +1261,8 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "waveshare-154bv2-rs"
-version = "0.1.0"
+version = "0.4.0"
+source = "git+https://github.com/claudiomattera/esp32c3-embassy?branch=master#69b75616f309818af0674399c1b732e601f76949"
 dependencies = [
  "embedded-graphics-core",
  "embedded-hal 1.0.0",

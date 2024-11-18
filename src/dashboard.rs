@@ -26,7 +26,7 @@ use heapless::String;
 
 use time::OffsetDateTime;
 
-use waveshare_154bv2::Color as TriColor;
+use waveshare_154bv2_rs::Color as TriColor;
 
 use crate::sensor::SensorReading;
 

@@ -78,7 +78,8 @@ bme280-rs = { version = "0.2", default-features = false, features = ["async", "u
 uom = { version = "0.33", default-features = false,  features = ["f32", "si"] }
 
 # Display
-waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false,  features = ["async", "draw-target"] }
+# waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false,  features = ["async", "draw-target"] }
+waveshare-154bv2-rs = { git = "https://github.com/claudiomattera/esp32c3-embassy", branch = "master", features = ["async", "draw-target"]  }
 # waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false }
 embedded-graphics = {   version = "0.8", default-features = false }
 embedded-graphics-core = { version = "0.4", default-features = false }

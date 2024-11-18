@@ -11,7 +11,7 @@ license = "MIT OR Apache-2.0"
 rust-version = "1.75"
 keywords = ["e-ink", "embedded", "display"]
 categories = ["embedded-hal", "hardware-support", "display"]
-publish = true
+publish = false
 
 [lib]
 name = "waveshare_154bv2"
