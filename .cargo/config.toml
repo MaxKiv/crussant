@@ -20,9 +20,9 @@ rustflags = [
 ]
 
 [env]
-ESP_LOG = "INFO"
-RUST_LOG = "INFO"
-DEFMT_LOG = "INFO"
+ESP_LOG = "DEBUG"
+RUST_LOG = "DEBUG"
+DEFMT_LOG = "DEBUG"
 
 [profile.dev.package."esp-hal"]
 inherits = "release"

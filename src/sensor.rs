@@ -1,6 +1,6 @@
+use bme280_rs::SensorMode;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_time::Delay;
-use embedded_hal::i2c::I2c;
 use embedded_hdc1080_rs::Hdc1080;
 use esp_hal::i2c::I2c;
 use esp_hal::peripherals::I2C0;
@@ -84,6 +84,12 @@ pub async fn sensor_task(
 ) {
     info!("Initializing hdc1080 sensor");
     let mut hdc1080 = Hdc1080::new(i2c, Delay).unwrap();
+    info!("Getting hdc1080 device id");
+    let device_id = hdc1080.get_device_id().unwrap();
+    info!("Getting hdc1080 manufacturing id");
+    let manufacturing_id = hdc1080.get_man_id().unwrap();
+    info!("hdc1080 device id: {device_id}");
+    info!("hdc1080 manufacturing id: {manufacturing_id}");
 
     info!("Initializing ccs881 sensor");
 
@@ -94,17 +100,26 @@ pub async fn sensor_task(
     Timer::after(WARMUP_INTERVAL).await;
 
     loop {
+        let hdc_reading = hdc1080
+            .read()
+            .map_err(|err| {
+                error!("hdc1080 measurement error: {err:?}");
+                SensorError::Sample
+            })
+            .unwrap();
+        info!("hdc1080 reading: {hdc_reading:?}");
+
         let sensor_reading = sample(&mut rng, &clock).await.unwrap_or_else(|err| {
             error!("sensor measurement error: {err:?}");
             (OffsetDateTime::UNIX_EPOCH, Sample::random(&mut rng))
         });
 
-        info!("Wait {}s for next sample", WAIT_INTERVAL.as_secs());
-        Timer::after(WAIT_INTERVAL).await;
-
         if let Err(send_err) = send(sensor_reading, &sender).await {
             error!("Sending measurement error: {send_err:?}");
         }
+
+        info!("Wait {}s for next sample", WAIT_INTERVAL.as_secs());
+        Timer::after(WAIT_INTERVAL).await;
     }
 }
 

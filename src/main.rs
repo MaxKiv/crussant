@@ -144,7 +144,7 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
 
     info!("Creating I2C pins");
     let sda = io.pins.gpio2;
-    let scl = io.pins.gpio3;
+    let scl = io.pins.gpio4;
 
     info!("Creating I2C device");
     let i2c = I2c::new_with_timeout(peripherals.I2C0, sda, scl, 400.kHz(), Some(20));
