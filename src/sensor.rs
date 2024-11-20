@@ -1,6 +1,12 @@
+use core::cell::RefCell;
+
 use bme280_rs::SensorMode;
+use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_time::Delay;
+use embedded_ccs811::Ccs811Awake;
+use embedded_ccs811::SlaveAddr;
+use embedded_hal_bus::i2c::RefCellDevice;
 use embedded_hdc1080_rs::Hdc1080;
 use esp_hal::i2c::I2c;
 use esp_hal::peripherals::I2C0;
@@ -13,6 +19,7 @@ use embassy_sync::channel::Sender;
 use embassy_time::Duration;
 use embassy_time::Timer;
 
+use esp_hal::Async;
 use esp_hal::Blocking;
 use time::OffsetDateTime;
 
@@ -78,20 +85,26 @@ pub type SensorReading = (OffsetDateTime, Sample);
 pub async fn sensor_task(
     sender: Sender<'static, NoopRawMutex, SensorReading, 3>,
     // i2c: I2C0,
-    i2c: esp_hal::i2c::I2c<'static, esp_hal::peripherals::I2C0, esp_hal::Blocking>,
+    i2c_bus: &'static mut embassy_sync::mutex::Mutex<
+        NoopRawMutex,
+        esp_hal::i2c::I2c<'static, I2C0, Async>,
+    >,
     mut rng: Rng,
     clock: Clock,
 ) {
+    info!("Creating I2C devices to share I2C bus between sensors");
+    let i2c_device_1 = I2cDevice::new(i2c_bus);
+    let i2c_device_2 = I2cDevice::new(i2c_bus);
+
     info!("Initializing hdc1080 sensor");
-    let mut hdc1080 = Hdc1080::new(i2c, Delay).unwrap();
-    info!("Getting hdc1080 device id");
+    let mut hdc1080 = Hdc1080::new(RefCellDevice::new(i2c_device_1), Delay).unwrap();
     let device_id = hdc1080.get_device_id().unwrap();
-    info!("Getting hdc1080 manufacturing id");
     let manufacturing_id = hdc1080.get_man_id().unwrap();
-    info!("hdc1080 device id: {device_id}");
-    info!("hdc1080 manufacturing id: {manufacturing_id}");
+    info!("hdc1080 device id: {device_id} - expected 0x1050");
+    info!("hdc1080 manufacturing id: {manufacturing_id} - expected 0x5449");
 
     info!("Initializing ccs881 sensor");
+    let mut ccs811 = Ccs811Awake::new(RefCellDevice::new(i2c_device_2), SlaveAddr::default());
 
     info!(
         "Waiting {}ms for configuration to be processed",

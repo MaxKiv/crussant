@@ -1,11 +1,4 @@
-// Copyright Claudio Mattera 2024.
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-//! Main crate
-
+#![feature(never_type)]
 #![no_std]
 #![no_main]
 
@@ -14,6 +7,7 @@ use clock::ClockError;
 use embassy_executor::Spawner;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_sync::channel::Channel;
+use embassy_sync::mutex::Mutex;
 use embassy_time::Delay;
 use embassy_time::Timer;
 use embedded_hal_bus::spi::ExclusiveDevice;
@@ -31,6 +25,7 @@ use esp_hal::gpio::Output;
 use esp_hal::gpio::Pin;
 use esp_hal::gpio::Pull;
 use esp_hal::i2c::I2c;
+use esp_hal::peripherals::I2C0;
 use esp_hal::peripherals::SPI2;
 use esp_hal::rng::Rng;
 use esp_hal::spi::master::Spi;
@@ -44,12 +39,12 @@ use esp_hal_embassy::main;
 
 use fugit::RateExtU32 as _;
 
-use log::warn;
 use static_cell::StaticCell;
 
 use core::convert::Infallible;
 
-use log::debug;
+// use log::debug;
+// use log::warn;
 use log::error;
 use log::info;
 use log::trace;
@@ -60,8 +55,6 @@ use esp_hal::timer::timg::TimerGroup;
 
 use esp_backtrace as _;
 use esp_println as _;
-
-// use static_cell::StaticCell;
 
 // use defmt::info;
 
@@ -87,32 +80,42 @@ const AWAKE_PERIOD: Duration = Duration::from_secs(3);
 /// A channel between sensor sampler and display updater
 static CHANNEL: StaticCell<Channel<NoopRawMutex, SensorReading, 3>> = StaticCell::new();
 
+static I2C_BUS: StaticCell<Mutex<NoopRawMutex, I2c<I2C0, Async>>> = StaticCell::new();
+
 /// Application entry point
 /// Sets up logger and runs firmware
 #[main]
 async fn entry(spawner: Spawner) {
     logger::setup();
     info!("spawning main");
-    if let Err(err) = main(&spawner).await {
-        panic!("Main exited with {err:?}");
-    } else {
-        panic!("Main exited without error");
+    match main(&spawner).await {
+        Err(err) => {
+            panic!("Main exited with {err:?}");
+        }
+        _ => {
+            panic!("Main exited without error");
+        }
     }
 }
 
 /// Fallible Main task
 /// Spawns embassy tasks
-async fn main(spawner: &Spawner) -> Result<(), Error> {
+async fn main(spawner: &Spawner) -> Result<!, Error> {
+    info!("Initialize the HAL");
     let peripherals = esp_hal::init({
         let mut config = esp_hal::Config::default();
         config.cpu_clock = CpuClock::max();
         config
     });
 
+    // get the IO driver
+    info!("Initialize the IO driver");
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
-    let led = io.pins.gpio3; // Green LED on my T8-C3
+    // Green LED on my T8-C3 <3
+    let led = io.pins.gpio3;
 
+    info!("Initialize the RNG peripheral");
     let rng = Rng::new(peripherals.RNG);
 
     info!("Create Display and SPI Chip Select pins");
@@ -127,6 +130,7 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
         .with_sck(io.pins.gpio6)
         .with_mosi(io.pins.gpio7);
 
+    info!("Initialize the DMA peripheral");
     let dma = Dma::new(peripherals.DMA);
     let dma_channel = dma.channel0;
 
@@ -138,16 +142,27 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
     let (rx_buffer, rx_descriptors, tx_buffer, tx_descriptors) = dma_buffers!(32000);
     let dma_rx_buf = DmaRxBuf::new(rx_descriptors, rx_buffer).map_err(Error::DmaBufferCreation)?;
     let dma_tx_buf = DmaTxBuf::new(tx_descriptors, tx_buffer).map_err(Error::DmaBufferCreation)?;
+
     info!("Create SPI DMA Bus");
     let spi_dma_bus = SpiDmaBus::new(spi_dma, dma_rx_buf, dma_tx_buf);
-    let spi_device = ExclusiveDevice::new(spi_dma_bus, cs, Delay);
+    let spi_device = ExclusiveDevice::new(spi_dma_bus, cs, Delay).map_err(|err| {
+        error!("Error creating SPI ExclusiveDevice {err}");
+        Error::SpiBusCreation
+    })?;
 
     info!("Creating I2C pins");
     let sda = io.pins.gpio2;
     let scl = io.pins.gpio4;
 
     info!("Creating I2C device");
-    let i2c = I2c::new_with_timeout(peripherals.I2C0, sda, scl, 400.kHz(), Some(20));
+    let i2c_bus = I2C_BUS.init(Mutex::new(I2c::new_with_timeout_async(
+        peripherals.I2C0,
+        sda,
+        scl,
+        100.kHz(),
+        Some(20),
+    )));
+    // let i2c = I2c::new_with_timeout(peripherals.I2C0, sda, scl, 400.kHz(), Some(20));
 
     info!("Creating Clock");
     let clock = Clock::new();
@@ -166,7 +181,7 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
     info!("Spawning blink task");
     spawner.must_spawn(blink_task(led.degrade()));
     info!("Spawning sensor task");
-    spawner.must_spawn(sensor_task(sender, i2c, rng, clock.clone()));
+    spawner.must_spawn(sensor_task(sender, i2c_bus, rng, clock.clone()));
     info!("Spawning display task");
     spawner.must_spawn(display_task(receiver, spi_device, busy, rst, dc));
 
@@ -183,7 +198,6 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
     loop {
         Timer::after(Duration::from_secs(1200)).await;
     }
-    Ok(())
 }
 
 /// An error
@@ -191,6 +205,8 @@ async fn main(spawner: &Spawner) -> Result<(), Error> {
 enum Error {
     /// An impossible error existing only to satisfy the type system
     Impossible(Infallible),
+
+    SpiBusCreation,
 
     DmaBufferCreation(DmaBufError),
 

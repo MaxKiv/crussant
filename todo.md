@@ -12,9 +12,10 @@ Blink task
 Sensor task
 --- 
 [x] Generate a random sample
-[ ] Connect some sensor
-[ ] add ccs881 driver
-[ ] Write a driver for the humidity sensor?
+[x] add hdc1080 driver
+[x] add ccs881 driver
+[x] share i2c bus between drivers
+[ ] Write an embedded-hal 1.0.0 async capable driver for the humidity sensor?
 
 Display task
 ---
@@ -22,6 +23,7 @@ Display task
 [x] Print something to waveshare using claudio's driver
 [x] Get & show sensor measurement
 [ ] Look into embedded_graphics & claudio's dashboard
+[ ] Look into the display driver: why does updating the display block the executor?
 
 Sleep
 --- 
