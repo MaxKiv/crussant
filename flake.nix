@@ -24,10 +24,10 @@
         # Get a cross compilation toolchain from the rust-toolchain.toml
         toolchain = with fenix.packages.${system}; fromToolchainFile {
           file = ./rust-toolchain.toml; # alternatively, dir = ./.;
-          sha256 = "sha256-wq7bZ1/IlmmLkSa3GUJgK17dTWcKyf5A+ndS9yRwB88=";
+          sha256 = "sha256-uyMZQZIPRSJIdtVJ/ChX053sf+uAY2tvjYNUA3ar1o4=";
         };
 
-        # Define the target sadly we have to do this twice
+        # Define the target, sadly we have to do this twice
         # once here and once in the rust-toolchain.toml
         target = "riscv32imc-unknown-none-elf";
 
@@ -40,7 +40,7 @@
             src = ./.;
             CARGO_BUILD_TARGET = target;
             # TODO: manage secrets with sops-nix or similar
-            # you know how it is :)
+            # enjoy my hotspot credentials for now :)
             WIFI_SSID = "Free wifi";
             WIFI_PASSWORD = "Proverdi12";
           };
@@ -54,6 +54,8 @@
             cargo-espflash # Serial flasher utilities for Espressif devices, based loosely on esptool.py.
             cargo-binutils # cargo wrappe rfor llvm-tools
             qemu-espressif.packages.${system}.qemu-esp32c3 # Qemu fork of Espressif
+            cargo-audit # Audit Cargo.lock files for crates with security vulnerabilities
+            cargo-hack # Cargo tool for testing and Ci/Cd
           ];
         };
       }
