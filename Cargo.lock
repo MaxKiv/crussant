@@ -29,6 +29,7 @@ dependencies = [
  "heapless",
  "log",
  "rand_core",
+ "sgp30",
  "static_cell",
  "time",
  "uom",
@@ -1111,6 +1112,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e819f2bc632f285be6d7cd36e25940d45b2391dd6d9b939e79de557f7014248"
 
 [[package]]
+name = "sensirion-i2c"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "640a03c95c176226cf159ae2727f7fe3245546022639d61459af46d2878aec06"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.214"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1137,6 +1148,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87607cb1398ed59d48732e575a4c28a7a8ebf2454b964fe3f224f2afc07909e1"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "sgp30"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30fcf17e8a467b8dce367b5681d2bc25c838cc31902906241bf26b7a46e3e8c3"
+dependencies = [
+ "byteorder",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "num-traits",
+ "sensirion-i2c",
 ]
 
 [[package]]

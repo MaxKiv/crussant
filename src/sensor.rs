@@ -21,6 +21,8 @@ use embassy_time::Timer;
 
 use esp_hal::Async;
 use esp_hal::Blocking;
+use sgp30::Measurement;
+use sgp30::Sgp30;
 use time::OffsetDateTime;
 
 use uom::si::f32::Pressure;
@@ -95,6 +97,7 @@ pub async fn sensor_task(
     info!("Creating I2C devices to share I2C bus between sensors");
     let i2c_device_1 = I2cDevice::new(i2c_bus);
     let i2c_device_2 = I2cDevice::new(i2c_bus);
+    let i2c_device_3 = I2cDevice::new(i2c_bus);
 
     info!("Initializing hdc1080 sensor");
     let mut hdc1080 = Hdc1080::new(RefCellDevice::new(i2c_device_1), Delay).unwrap();
@@ -105,6 +108,10 @@ pub async fn sensor_task(
 
     info!("Initializing ccs881 sensor");
     let mut ccs811 = Ccs811Awake::new(RefCellDevice::new(i2c_device_2), SlaveAddr::default());
+
+    info!("Initializing sgp30 sensor");
+    let mut sgp30 = Sgp30::new(RefCellDevice::new(i2c_device_3), 0x58, Delay);
+    sgp30.init();
 
     info!(
         "Waiting {}ms for configuration to be processed",
@@ -121,6 +128,10 @@ pub async fn sensor_task(
             })
             .unwrap();
         info!("hdc1080 reading: {hdc_reading:?}");
+
+        let measurement: Measurement = sgp30.measure().unwrap();
+        info!("CO₂eq parts per million: {}", measurement.co2eq_ppm);
+        info!("TVOC parts per billion: {}", measurement.tvoc_ppb);
 
         let sensor_reading = sample(&mut rng, &clock).await.unwrap_or_else(|err| {
             error!("sensor measurement error: {err:?}");

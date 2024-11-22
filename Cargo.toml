@@ -83,6 +83,7 @@ bme280-rs = { version = "0.2", default-features = false, features = ["async", "u
 uom = { version = "0.33", default-features = false,  features = ["f32", "si"] }
 embedded-ccs811 = { version = "0.2.0", default-features = false,  features = [] }
 embedded-hdc1080-rs = { version = "0.1.0", default-features = false,  features = [] }
+sgp30 = { version = "1.0.0", default-features = false,  features = ["embedded-hal-async"] }
 
 # Display
 # waveshare-154bv2-rs = { path = "./waveshare-154bv2-rs", default-features = false,  features = ["async", "draw-target"] }
