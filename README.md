@@ -1,84 +1,81 @@
-Crussant
+Crussant 🥐🦀
 ====
 
-A Rust async firmware for ESP32-C3 for reading and displaying sensor values using Embassy
+Rust async firmware for ESP32-C3 to read and display css811 and hdc1080 sensor
+readings using Embassy. Too complicated but definitely yummy, just like a
+croissant!
 
-<https://gitlab.com/maxkiv/crussant>
 
 [![](./display-th.jpg)](./display.jpg)
 
 
-The firmware runs on a [ESP32-C3] microcontroller, samples environment data (temperature, humidity, pressure) from a [BME280] sensor over I²C, and displays the latest sample on a [WaveShare 1.54 inches model B version 2] E-INK display over SPI.
+This [`no_std`] and no [`alloc`] firmware runs on a [ESP32-C3] microcontroller,
+samples environment data (temperature, humidity) from a [HDC1080] sensor and
+air quality data (eCO2, eTVOC) from a [CSS811] over I²C, and displays the latest
+data on a [WaveShare 1.54 inches model B version 2] E-INK display over SPI.
+
+It does all this asynchronous, using [Embassy][embassy] as an async framework.
+All communication with the sensors and display over I²C and SPI are async using
+the [`embedded-hal-async`][embedded-hal-async] HAL and the [`esp-hal`][esp-hal]
+HAL implementation for esp32c3.
+
+
+
+It is mostly meant as a reference / example / starting point. The Rust + ESP32 +
+Embassy ecosystem is still very young, and I had a hard time putting everything
+together to make a complete application. Hopefully this project will be useful
+to other beginners :)
 
 [ESP32-C3]: https://www.espressif.com/en/products/socs/esp32-c3
-[BME280]: https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/
+[HDC1080]: https://www.ti.com/lit/ds/symlink/hdc1080.pdf
+[CSS811]: https://www.farnell.com/datasheets/3216221.pdf
 [WaveShare 1.54 inches model B version 2]: https://www.waveshare.com/product/1.54inch-e-paper-module-b.htm
-
-
-In particular:
-
-* It uses [Embassy][embassy] as an async framework, all communication with the
-sensor and display over I²C and SPI are async with [`embedded-hal-async`][embedded-hal-async].
-* It is implemented on bare metal with `no_std` and without `alloc`.
-* It is up-to-date with the latest crate versions (as of 2024-06-23).
-* It uses [`reqwless`][reqwless] for HTTP requests and TLS.
-
-It is mostly meant as a reference / example / starting point.
-The Rust + ESP32 + Embassy ecosystem is still very young, and I had a hard time putting everything together to make a complete application.
-Hopefully this project will be useful to other beginners :)
-
-
 [embassy]: https://embassy.dev/
 [embedded-hal-async]: https://crates.io/crates/embedded-hal-async
-[reqwless]: https://crates.io/crates/reqwless
+[esp-hal]: https://crates.io/crates/esp-hal
+[T8-C3]: https://www.tinytronics.nl/en/development-boards/microcontroller-boards/with-wi-fi/lilygo-ttgo-t8-c3-esp32-c3-4mb-flash
 
+Acknowledgements
+----
+
+This project builds on the example by Claudio Mattera. Thanks to Claudio Mattera
+to provide inspiration and a reference point to fork for this project. Check out
+his amazing [esp32c3-embassy repo].
+
+In general this work heavily uses building blocks provided by others, such as
+the amazing [embassy], [embedded-hal-async] and [esp-hal] frameworks.
+
+Although I can't quite get it to work yet, thanks to Stefan Frijters for
+packaging the esp32c3 capable qemu fork from Espressif.
+
+[esp32c3-embassy repo]: https://github.com/claudiomattera/esp32c3-embassy
 
 Architecture
 ----
 
-The firmware uses Embassy.
 
-It starts by loading the current time from RTC Fast memory.
-If it is zero (as Unix timestamp), it means the clock has not been synchronized yet.
-So it connects to the WiFi network, and by making an HTTPS request to [WorldTimeAPI] to get the current time and time offset.
-This might be changed to use SNTP in the future, though that does not provide information about the time offset.
-Then it disconnects from the WiFi network (this is required to be able to enter deep sleep later).
+The main entry point sets up the [Log] logger and jumps to a second stage which
+configures the [esp-hal], [embassy] (using the general timer) and the Clock,
+I2C, SPI and DMA drivers. Currently the clock is configured by injecting the
+compilation time into the binary through an environment variable (see build.rs).
 
-After that, it creates structures for asynchronous I²C and SPI buses, a channel, and spawns two tasks with Embassy.
+The programs consists of 3 [embassy] tasks. A blink task that blinks the green
+LED on my [T8-C3] board for quick troubleshooting. A sensor tasks that
+periodically samples the [HDC1080] and [CSS811] sensors over I2C, and a display
+task that receives sensor samples from an embassy channel and displays them on
+the [WaveShare 1.54 inches model B version 2] using SPI.
 
-One task creates an interface the the BME280 sensor, then periodically reads a sample from it, and sends it through the channel.
-The other task creates an interface to the WaveShare E-INK display, then listens to the channel.
-Whenever a new sample arrives, it prints it on the display.
-
-Meanwhile, the main task is sleeping for a longish amount of time.
-After that, it saves the current time (plus the expected sleep duration) to RTC Fast memory, and it puts the module to deep sleep.
-
-The next time the module boots, it starts from the beginning.
-The clock will be initialized from RTC Fast memory, so the module will not connect to WiFi.
-
-The architecture is more complex than it could be.
-There is no actual reason for spawning tasks and using channels to communicate with them.
-Or perhaps there is no actual reason for using the RTC Fast memory and deep sleep.
-Or even for using asynchronous I²C and SPI interface.
-And definitely there is no actual reason for using a TLS layer and connecting over HTTPS rather than HTTP.
-However, as mentioned earlier, this application is meant as a reference / example / starting point for more complex projects.
-
-[WorldTimeAPI]: https://worldtimeapi.org/
-
-
-Connections
+Pinout
 ----
 
-The sensor and the display must be connected to the correct PINs on the ESP32-C3 module.
+For the CJMCU-8118 sensor package
 
-For I²C (sensor):
-
-* SDA -> GPIO1
-* SCL -> GPIO2
+* SDA -> GPIO2
+* SCL -> GPIO4
 * VIN/VCC -> 3.3v
 * GND -> GND
 
-For SPI (display:)
+For the SPI EPD display
 
 * SCK/SCLK/CLK -> GPIO6
 * DIN -> GPIO7 (MOSI)
@@ -89,38 +86,45 @@ For SPI (display:)
 * VIN/VCC -> 3.3v
 * GND -> GND
 
+
 ![Connections](./sketch/sketch.png)
 
 
-Changes
+How to build
 ----
 
-See the [Changelog](./CHANGELOG.md) for a list of changes.
+First obtain the correct rust toolchain, either through cargo or the nix flake.
+
+This repository includes a collection of build, running and other [Just] commands
+useful to this project in `./justfile.` To view all possible commands:
+
+```bash
+just
+```
 
 
-Development
+How to run
 ----
 
-See the [Contributing Guide](./CONTRIBUTING.md) for more information about development.
+To flash the firmware to an esp32c3 board, the [espflash] tool is used. It is
+configured in `./cargo/config.toml`
+
+To invoke it through cargo:
+
+```bash
+cargo run
+```
+
+
+Contributing
+----
+
+Contributions are always welcome, please check out the [Contributing Guide](./CONTRIBUTING.md).
 
 
 License
 ----
 
-Copyright Claudio Mattera 2024
+You are free to copy, modify, and distribute this driver with attribution under
+the terms of the MIT license (file [`LICENSE-MIT.txt`](./LICENSE-MIT.txt) or <https://opensource.org/licenses/MIT>)
 
-### Main Firmware
-
-You are free to copy, modify, and distribute this firmware with attribution under the terms of the MPL 2.0 license ([`LICENSE-MPL-2.0.md`](./LICENSE-MPL-2.0.md) or <https://opensource.org/licenses/MPL-2.0>).
-
-
-### Display Driver
-
-You are free to copy, modify, and distribute this driver with attribution under the terms of either
-
-*   Apache License, Version 2.0
-    (file [`LICENSE-APACHE-2.0.txt`](./LICENSE-APACHE-2.0.txt) or <https://opensource.org/licenses/Apache-2.0>)
-*   MIT license
-    (file [`LICENSE-MIT.txt`](./LICENSE-MIT.txt) or <https://opensource.org/licenses/MIT>)
-
-at your option.

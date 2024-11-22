@@ -1,6 +1,11 @@
 ToDo
 ====
 
+General
+--- 
+[x] update README
+[ ] update connections jpeg
+
 Main task
 --- 
 [x] quickly jump to a fallible main to be able to use ? operator
