@@ -5,10 +5,12 @@ set dotenv-load := true
 default:
     @just --list
 
+# helper to centralize cargo invocations
 [private]
 cargo +args:
     cargo {{args}}
-#     cargo +nightly {{args}}
+# example: run all commands as release
+#     cargo {{args}} --release
 
 # Generate Cargo.lock
 generate-lockfile:
@@ -54,6 +56,22 @@ build +args='': fetch
 build-release +args='': fetch
     @just cargo build --frozen --release {{args}}
 
+# Simulate using qemu
+simulate +args='': build
+  qemu-system-riscv32 -nographic -icount 3 -machine esp32c3 -drive file=./target/riscv32imc-unknown-none-elf/debug/Crussant,if=mtd,format=raw
+
+# Check binary size
+size +args='': fetch
+    @just cargo size --release -- -A -x -d {{args}}
+
+# list largest symbols
+symbols +args='': fetch
+    @just cargo nm --release -- --print-size --size-sort | less
+
+# Build .bin format
+strip +args='': fetch
+    @just cargo strip --release -- --strip-all -o Crussant.bin
+
 # Build for all feature combinations
 build-all-feature-combinations: (check-all-feature-combinations)
     @just cargo hack --feature-powerset --no-dev-deps build
@@ -74,9 +92,17 @@ test +args='': (build-tests args)
 test-all-feature-combinations: (build-tests-all-feature-combinations)
     @just cargo hack --feature-powerset test --target=x86_64-unknown-linux-gnu
 
+# Run debug
+run *args: (build args)
+    @just cargo run --frozen {{ args }}
+
 # Run release
 run-release *args: (build-release args)
     @just cargo run --frozen  --release {{ args }}
+
+# Open serial monitor
+monitor *args:
+    espflash monitor
 
 # Build documentation
 build-documentation +args='': fetch
@@ -95,3 +121,8 @@ publish:
     @just cargo login "${CRATES_IO_TOKEN}"
     @just cargo publish
     @just cargo logout
+
+# Open datasheets
+data +args:
+   find ./data/{{args}} -type f -exec xdg-open {} \;
+

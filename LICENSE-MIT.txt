@@ -1,4 +1,6 @@
-Copyright 2024 Claudio Mattera
+Copyright for portions this project are held by Claudio Mattera 2024 as
+part of their esp32c3-embassy. All other copyright for project crussant are held
+by Max Kivits 2024.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

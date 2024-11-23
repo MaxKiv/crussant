@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="client-js auclwxzmon idc0_350 flbghqkb"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>GYML8511 UV Sensor - Wiki</title>
+<meta name="generator" content="MediaWiki 1.25.2">
+<link rel="shortcut icon" href="http://wiki.sunfounder.cc/favicon.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.sunfounder.cc/opensearch_desc.php" title="Wiki (en)">
+<link rel="EditURI" type="application/rsd+xml" href="http://wiki.sunfounder.cc/api.php?action=rsd">
+<link rel="alternate" hreflang="x-default" href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor">
+<link rel="alternate" type="application/atom+xml" title="Wiki Atom feed" href="http://wiki.sunfounder.cc/index.php?title=Special:RecentChanges&amp;feed=atom">
+<link rel="stylesheet" href="wiki_files/load.css">
+<style>
+.mw-collapsible-toggle{float:right;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none}  .mw-content-ltr .mw-collapsible-toggle,.mw-content-rtl .mw-content-ltr .mw-collapsible-toggle{float:right} .mw-content-rtl .mw-collapsible-toggle,.mw-content-ltr .mw-content-rtl .mw-collapsible-toggle{float:left}.mw-customtoggle,.mw-collapsible-toggle{cursor:pointer} caption .mw-collapsible-toggle,.mw-content-ltr caption .mw-collapsible-toggle,.mw-content-rtl caption .mw-collapsible-toggle,.mw-content-rtl .mw-content-ltr caption .mw-collapsible-toggle,.mw-content-ltr .mw-content-rtl caption .mw-collapsible-toggle{float:none} li .mw-collapsible-toggle,.mw-content-ltr li .mw-collapsible-toggle,.mw-content-rtl li .mw-collapsible-toggle,.mw-content-rtl .mw-content-ltr li .mw-collapsible-toggle,.mw-content-ltr .mw-content-rtl li .mw-collapsible-toggle{float:none} .mw-collapsible-toggle-li{list-style:none}
+/* cache key: mzt54542_wiki:resourceloader:filter:minify-css:7:e1ffd603cbaaa5f1a36e0d13fe843535 */
+.suggestions{overflow:hidden;position:absolute;top:0;left:0;width:0;border:none;z-index:1099;padding:0;margin:-1px 0 0 0}.suggestions-special{position:relative;background-color:white;cursor:pointer;border:solid 1px #aaaaaa;padding:0;margin:0;margin-top:-2px;display:none;padding:0.25em 0.25em;line-height:1.25em}.suggestions-results{background-color:white;cursor:pointer;border:solid 1px #aaaaaa;padding:0;margin:0}.suggestions-result{color:black;margin:0;line-height:1.5em;padding:0.01em 0.25em;text-align:left; overflow:hidden;-o-text-overflow:ellipsis; text-overflow:ellipsis;white-space:nowrap}.suggestions-result-current{background-color:#4C59A6;color:white}.suggestions-special .special-label{color:gray;text-align:left}.suggestions-special .special-query{color:black;font-style:italic;text-align:left}.suggestions-special .special-hover{background-color:silver}.suggestions-result-current .special-label,.suggestions-result-current .special-query{color:white}.highlight{font-weight:bold}
+/* cache key: mzt54542_wiki:resourceloader:filter:minify-css:7:f8d0c6895ce3ae14434c16b8fca59432 */
+.postedit-container{margin:0 auto;position:fixed;top:0;height:0;left:50%;z-index:1000;font-size:13px}.postedit-container:hover{cursor:pointer}.postedit{position:relative;top:0.6em;left:-50%;padding:.6em 3.6em .6em 1.1em;line-height:1.5625em;color:#626465;background-color:#f4f4f4;border:1px solid #dcd9d9;text-shadow:0 0.0625em 0 rgba(255,255,255,0.5);border-radius:5px;box-shadow:0 2px 5px 0 #ccc;-webkit-transition:all 0.25s ease-in-out;-moz-transition:all 0.25s ease-in-out;-ms-transition:all 0.25s ease-in-out;-o-transition:all 0.25s ease-in-out;transition:all 0.25s ease-in-out}.skin-monobook .postedit{top:6em !important}.postedit-faded{opacity:0}.postedit-icon{padding-left:41px;  line-height:25px;background-repeat:no-repeat;background-position:8px 50%}.postedit-icon-checkmark{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABblBMVEUAAAD///////9PfTf///80aRdTgjn///9Feij///////////9Rfzf///////////9PfjZRgDh1o1xOfTb///////+bwYqLtnj///////9PfTa82K////9WhT6YxIL///9QgDdTgzr////////j7uDl7eLq8efi693k7OH///////9UhjuBr2rp9uRUhjr///9YljVKgir///9WiTlYjT3////9/v57vFlbkT5PjC9dlD/5/fhuq09stUTs9uhxuElctCpfnT1huDFloEZloUZmpENmvDZpvDxpvTxqvjxrvT5rvT9rwTxsqktswD5uwkBvuUdxw0NztFBztU9ztVBzwkp0tlJ1xkd2t1R3uVR4w1F4xk54x014yE15uVZ5v1R5xVB6v1R7yFJ8wVh9xVl9yFR9yVd9ylN+xVh+yFd/x1l/yFeAylmEx1+Ny2uY0Hqe04Wj1Ymv3Ze33qLD47TJ5L3O6cPU7Mrq9eb2+/Q4j37OAAAAQHRSTlMAAQIEBAUFBQwPFB4fJCUoKiosQEhJS01RUlZZXmdydXaChYuSlJSWmJmoq6uur8LExcvM19fg5ejt8fX2+Pr7SljgewAAAKpJREFUGBkFwQNCAwAAAMDLtl3LtrG4rWXbtvX77gAgZ6grFwC0bhwNVgKgdPZx8b0dgLi+s7Wn0VoAqpfOI9+BNADZI7fLrz2pSEwGHZuH+78lSK8ZLkLezF3ooyUG3VPXq2USei9WngeyoG195yBYWDF3E/2pAhl1e9Gr8bGT+bfOFCC2fnvh4X7rcqIAQNNu+HT6sxkAjceTL/2ZAIhv+PorBwBJxfkA//dFHSCBy/UTAAAAAElFTkSuQmCC);background-image:url(http://wiki.sunfounder.cc/resources/src/mediawiki.action/images/green-checkmark.png?2015-08-10T21:21:40Z)!ie;background-position:left}.postedit-close{position:absolute;padding:0 .8em;right:0;top:0;font-size:1.25em;font-weight:bold;line-height:2.3em;color:black;text-shadow:0 0.0625em 0 white;text-decoration:none;opacity:0.2;filter:alpha(opacity=20)}.postedit-close:hover{color:black;text-decoration:none;opacity:0.4;filter:alpha(opacity=40)}
+/* cache key: mzt54542_wiki:resourceloader:filter:minify-css:7:f09d6615ebc8043adcffc56d2e13f5e7 */</style><style>
+.suggestions a.mw-searchSuggest-link,.suggestions a.mw-searchSuggest-link:hover,.suggestions a.mw-searchSuggest-link:active,.suggestions a.mw-searchSuggest-link:focus{color:black;text-decoration:none}.suggestions-result-current a.mw-searchSuggest-link,.suggestions-result-current a.mw-searchSuggest-link:hover,.suggestions-result-current a.mw-searchSuggest-link:active,.suggestions-result-current a.mw-searchSuggest-link:focus{color:white}.suggestions a.mw-searchSuggest-link .special-query{ overflow:hidden;-o-text-overflow:ellipsis; text-overflow:ellipsis;white-space:nowrap}
+/* cache key: mzt54542_wiki:resourceloader:filter:minify-css:7:ae3fa4570b5ac0c6cf7b3776c8ae4d6f */</style><meta name="ResourceLoaderDynamicStyles" content="">
+<style>a:lang(ar),a:lang(kk-arab),a:lang(mzn),a:lang(ps),a:lang(ur){text-decoration:none}
+/* cache key: mzt54542_wiki:resourceloader:filter:minify-css:7:c149b8b8dcbb19511feb982f6e08e601 */</style>
+<script src="wiki_files/load_003.php"></script><script src="wiki_files/load_002.php"></script>
+<script>if(window.mw){
+mw.config.set({"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":0,"wgPageName":"GYML8511_UV_Sensor","wgTitle":"GYML8511 UV Sensor","wgCurRevisionId":6080,"wgRevisionId":6080,"wgArticleId":2103,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":[],"wgBreakFrames":false,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"GYML8511_UV_Sensor","wgRelevantArticleId":2103,"wgIsProbablyEditable":false,"wgRestrictionEdit":[],"wgRestrictionMove":[]});
+}</script><script>if(window.mw){
+mw.loader.implement("user.options",function($,jQuery){mw.user.options.set({"variant":"en"});});mw.loader.implement("user.tokens",function($,jQuery){mw.user.tokens.set({"editToken":"+\\","patrolToken":"+\\","watchToken":"+\\"});});
+/* cache key: mzt54542_wiki:resourceloader:filter:minify-js:7:a5c52c063dc436c1ca7c9f456936a5e9 */
+}</script>
+<script>if(window.mw){
+mw.loader.load(["mediawiki.page.startup","mediawiki.legacy.wikibits","mediawiki.legacy.ajax","skins.vector.js"]);
+}</script><script src="wiki_files/load.php"></script>
+<!--[if lt IE 7]><style type="text/css">body{behavior:url("http://wiki.sunfounder.cc/skins/Vector/csshover.min.htc")}</style><![endif]-->
+<link id="nordvpn-contentScript-extension-fonts" rel="stylesheet" href="wiki_files/css.css"></head>
+<body class="mediawiki ltr sitedir-ltr ns-0 ns-subject page-GYML8511_UV_Sensor skin-vector action-view">
+		<div id="mw-page-base" class="noprint"></div>
+		<div id="mw-head-base" class="noprint"></div>
+		<div id="content" class="mw-body" role="main">
+			<a id="top"></a>
+
+						<div class="mw-indicators">
+</div>
+			<h1 id="firstHeading" class="firstHeading" lang="en">GYML8511 UV Sensor</h1>
+						<div id="bodyContent" class="mw-body-content">
+									<div id="siteSub">From Wiki</div>
+								<div id="contentSub"></div>
+												<div id="jump-to-nav" class="mw-jump">
+					Jump to:					<a href="#mw-head">navigation</a>, 					<a href="#p-search">search</a>
+				</div>
+				<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2><span class="toctoggle">&nbsp;[<a href="#" id="togglelink">hide</a>]&nbsp;</span></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#Description"><span class="tocnumber">1</span> <span class="toctext"><b>Description</b></span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="#Features"><span class="tocnumber">2</span> <span class="toctext"><b>Features</b></span></a></li>
+<li class="toclevel-1 tocsection-3"><a href="#Introduction_of_Pins"><span class="tocnumber">3</span> <span class="toctext"><b>Introduction of Pins</b></span></a></li>
+<li class="toclevel-1 tocsection-4"><a href="#Principle"><span class="tocnumber">4</span> <span class="toctext"><b>Principle</b></span></a></li>
+<li class="toclevel-1 tocsection-5"><a href="#Experimental_Procedures_for_Arduino"><span class="tocnumber">5</span> <span class="toctext"><b>Experimental Procedures for Arduino</b></span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Description"><b>Description</b></span></h2>
+<p><a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_1.png" class="image"><img alt="GYML8511 1.png" src="wiki_files/GYML8511_1.png" width="217" height="249"></a>
+<a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_2.png" class="image"><img alt="GYML8511 2.png" src="wiki_files/GYML8511_2.png" width="224" height="252"></a>
+<br>
+The ML8511 is an UV sensor, which is suitable for acquiring UV intensity
+ indoors or outdoors. The sensor IC applies SOI-CMOS technology so it is
+ widely used in digital circuits and analogy circuits. According to the 
+principle that photocurrent can be converted into voltage, the sensor 
+can detect the UV intensity so it is a good choice for using in an 
+external circuit. ML8511 can output analogy voltage that is proportional
+ to UV intensity.
+<b>Applications</b><br>
+Smart phone, Watch, Weather station, Bicycle navigation, Accessary, Gaming.<br>
+</p>
+<h2><span class="mw-headline" id="Features"><b>Features</b></span></h2>
+<ul>
+<li>Photodiode sensitive to UV-A and UV-B</li>
+<li>Embedded operational amplifier</li>
+<li>Analog voltage output</li>
+<li>Low supply current (300A typ.) and low standby current (0.1A typ.)</li>
+<li>Small and thin surface mount package (4.0mm x 3.7mm x 0.73mm, 12-pin ceramic QFN)</li>
+</ul>
+<h2><span class="mw-headline" id="Introduction_of_Pins"><b>Introduction of Pins</b></span></h2>
+<table class="wikitable">
+
+<tbody><tr>
+<th colspan="2">Introduction of Pins
+</th></tr>
+<tr>
+<td>VIN
+</td>
+<td>Input terminal of the voltage before getting regulated
+</td></tr>
+<tr>
+<td>3V3
+</td>
+<td>The anode of the power supply 3v3
+</td></tr>
+<tr>
+<td>GND
+</td>
+<td>The cathode of the power supply
+</td></tr>
+<tr>
+<td>OUT
+</td>
+<td>Output (Low in power down or standby mode)
+</td></tr>
+<tr>
+<td>EN
+</td>
+<td>Active high enable pin. (High: Active mode, Low: Standby mode)
+</td></tr></tbody></table>
+<h2><span class="mw-headline" id="Principle"><b>Principle</b></span></h2>
+<p><a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_3.png" class="image"><img alt="GYML8511 3.png" src="wiki_files/GYML8511_3.png" width="196" height="114"></a>
+<br>
+<a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_4.png" class="image"><img alt="GYML8511 4.png" src="wiki_files/GYML8511_4.png" width="405" height="260"></a>
+<br>
+<a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_5.png" class="image"><img alt="GYML8511 5.png" src="wiki_files/GYML8511_5.png" width="639" height="568"></a>
+<br>
+<b>TIMING CHART</b>
+<br>
+Supply voltage and EN signal state should take one of the following procedures:
+</p>
+<ol>
+<li>EN should be HIGH or LOW at the same time when VDD is applied.</li>
+<li>EN should be HIGH or LOW while VDD is applied.</li>
+</ol>
+<p>Output should be read after output voltage level becomes stable. 
+Maximum time is required until stable output voltage reaches 1 
+millisecond after EN goes HIGH.<br>
+<a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_6.png" class="image"><img alt="GYML8511 6.png" src="wiki_files/GYML8511_6.png" width="477" height="197"></a>
+</p>
+<h2><span class="mw-headline" id="Experimental_Procedures_for_Arduino"><b>Experimental Procedures for Arduino</b></span></h2>
+<pre><b>Step 1:</b> Connect the circuit: 
+</pre>
+<p><br>
+<a href="http://wiki.sunfounder.cc/index.php?title=File:GYML8511_7.png" class="image"><img alt="GYML8511 7.png" src="wiki_files/GYML8511_7.png" width="548" height="315"></a>
+</p>
+<pre>
+//Hardware pin definitions
+int UVOUT = A0; //Output from the sensor
+int REF_3V3 = A1; //3.3V power on the Arduino board
+
+void setup()
+{
+  Serial.begin(9600);
+
+  pinMode(UVOUT, INPUT);
+  pinMode(REF_3V3, INPUT);
+
+  Serial.println("MP8511 example");
+}
+
+void loop()
+{
+  int uvLevel = averageAnalogRead(UVOUT);
+  int refLevel = averageAnalogRead(REF_3V3);
+  
+  //Use the 3.3V power pin as a reference to get a very accurate output value from sensor
+  float outputVoltage = 3.3 / refLevel * uvLevel;
+  
+  float uvIntensity = mapfloat(outputVoltage, 0.99, 2.9, 0.0, 15.0);
+
+  Serial.print("MP8511 output: ");
+  Serial.print(uvLevel);
+
+  Serial.print(" MP8511 voltage: ");
+  Serial.print(outputVoltage);
+
+  Serial.print(" UV Intensity (mW/cm^2): ");
+  Serial.print(uvIntensity);  
+  
+  Serial.println();
+  
+  delay(100);
+}
+
+//Takes an average of readings on a given pin
+//Returns the average
+int averageAnalogRead(int pinToRead)
+{
+  byte numberOfReadings = 8;
+  unsigned int runningValue = 0; 
+
+  for(int x = 0&nbsp;; x &lt; numberOfReadings&nbsp;; x++)
+    runningValue += analogRead(pinToRead);
+  runningValue /= numberOfReadings;
+
+  return(runningValue);  
+}
+
+//The Arduino Map function but for floats
+//From: http://forum.arduino.cc/index.php?topic=3922.0
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+</pre>
+
+<!-- 
+NewPP limit report
+CPU time usage: 0.050 seconds
+Real time usage: 0.062 seconds
+Preprocessor visited node count: 22/1000000
+Preprocessor generated node count: 44/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+-->
+
+<!-- 
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 - -total
+-->
+
+<!-- Saved in parser cache with key mzt54542_wiki:pcache:idhash:2103-0!*!*!!en!5!* and timestamp 20241115114400 and revision id 6080
+ -->
+</div>									<div class="printfooter">
+						Retrieved from "<a dir="ltr" href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;oldid=6080">http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;oldid=6080</a>"					</div>
+													<div id="catlinks" class="catlinks catlinks-allhidden"></div>												<div class="visualClear"></div>
+							</div>
+		</div>
+		<div id="mw-navigation">
+			<h2>Navigation menu</h2>
+
+			<div id="mw-head">
+									<div id="p-personal" role="navigation" class="" aria-labelledby="p-personal-label">
+						<h3 id="p-personal-label">Personal tools</h3>
+						<ul>
+							<li id="pt-login"><a href="http://wiki.sunfounder.cc/index.php?title=Special:UserLogin&amp;returnto=GYML8511+UV+Sensor" title="You are encouraged to log in; however, it is not mandatory [Alt+Shift+o]" accesskey="o">Log in</a></li>						</ul>
+					</div>
+									<div id="left-navigation">
+										<div id="p-namespaces" role="navigation" class="vectorTabs" aria-labelledby="p-namespaces-label">
+						<h3 id="p-namespaces-label">Namespaces</h3>
+						<ul>
+															<li id="ca-nstab-main" class="selected"><span><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor" title="View the content page [Alt+Shift+c]" accesskey="c">Page</a></span></li>
+															<li id="ca-talk" class="new"><span><a href="http://wiki.sunfounder.cc/index.php?title=Talk:GYML8511_UV_Sensor&amp;action=edit&amp;redlink=1" title="Discussion about the content page [Alt+Shift+t]" accesskey="t">Discussion</a></span></li>
+													</ul>
+					</div>
+										<div id="p-variants" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-variants-label">
+												<h3 id="p-variants-label" tabindex="0"><span>Variants</span><a href="#" tabindex="-1"></a></h3>
+
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+									</div>
+				<div id="right-navigation">
+										<div id="p-views" role="navigation" class="vectorTabs" aria-labelledby="p-views-label">
+						<h3 id="p-views-label">Views</h3>
+						<ul>
+															<li id="ca-view" class="selected"><span><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor">Read</a></span></li>
+															<li id="ca-viewsource"><span><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;action=edit" title="This page is protected.
+You can view its source [Alt+Shift+e]" accesskey="e">View source</a></span></li>
+															<li id="ca-history" class="collapsible"><span><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;action=history" title="Past revisions of this page [Alt+Shift+h]" accesskey="h">View history</a></span></li>
+													</ul>
+					</div>
+										<div id="p-cactions" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-cactions-label" style="">
+						<h3 id="p-cactions-label" tabindex="0"><span>More</span><a href="#" tabindex="-1"></a></h3>
+
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+										<div id="p-search" role="search">
+						<h3>
+							<label for="searchInput">Search</label>
+						</h3>
+
+						<form action="http://wiki.sunfounder.cc/index.php" id="searchform">
+														<div id="simpleSearch">
+															<input type="search" name="search" placeholder="Search" title="Search Wiki [Alt+Shift+f]" accesskey="f" id="searchInput" tabindex="1" autocomplete="off"><input type="hidden" value="Special:Search" name="title"><input type="submit" name="go" value="Go" title="Go to a page with this exact name if exists" id="searchButton" class="searchButton">								</div>
+						</form>
+					</div>
+									</div>
+			</div>
+			<div id="mw-panel">
+				<div id="p-logo" role="banner"><a class="mw-wiki-logo" href="https://www.sunfounder.com/" title="Visit the main page"></a></div>
+						<div class="portal" role="navigation" id="p-Navigation" aria-labelledby="p-Navigation-label">
+			<h3 id="p-Navigation-label">Navigation</h3>
+
+			<div class="body">
+									<ul>
+													<li id="n-mainpage-description"><a href="http://wiki.sunfounder.cc/index.php?title=Main_Page" title="Visit the main page [Alt+Shift+z]" accesskey="z">Main page</a></li>
+													<li id="n-randompage"><a href="http://wiki.sunfounder.cc/index.php?title=Special:Random" title="Load a random page [Alt+Shift+x]" accesskey="x">Random page</a></li>
+													<li id="n-recentchanges"><a href="http://wiki.sunfounder.cc/index.php?title=Special:RecentChanges" title="A list of recent changes in the wiki [Alt+Shift+r]" accesskey="r">Recent changes</a></li>
+											</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id="p-Collections" aria-labelledby="p-Collections-label">
+			<h3 id="p-Collections-label">Collections</h3>
+
+			<div class="body">
+									<ul>
+													<li id="n-SHOP"><a href="http://www.sunfounder.com/" rel="nofollow" target="_blank">SHOP</a></li>
+													<li id="n-LEARN"><a href="https://learn.sunfounder.com/" rel="nofollow" target="_blank">LEARN</a></li>
+													<li id="n-FORUM"><a href="https://forum.sunfounder.com/" rel="nofollow" target="_blank">FORUM</a></li>
+													<li id="n-BLOG"><a href="https://blog.sunfounder.com/" rel="nofollow" target="_blank">BLOG</a></li>
+													<li id="n-EDUCATION"><a href="https://education.sunfounder.com/" rel="nofollow" target="_blank">EDUCATION</a></li>
+											</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id="p-tb" aria-labelledby="p-tb-label">
+			<h3 id="p-tb-label">Tools</h3>
+
+			<div class="body">
+									<ul>
+													<li id="t-whatlinkshere"><a href="http://wiki.sunfounder.cc/index.php?title=Special:WhatLinksHere/GYML8511_UV_Sensor" title="A list of all wiki pages that link here [Alt+Shift+j]" accesskey="j">What links here</a></li>
+													<li id="t-recentchangeslinked"><a href="http://wiki.sunfounder.cc/index.php?title=Special:RecentChangesLinked/GYML8511_UV_Sensor" title="Recent changes in pages linked from this page [Alt+Shift+k]" accesskey="k">Related changes</a></li>
+													<li id="t-specialpages"><a href="http://wiki.sunfounder.cc/index.php?title=Special:SpecialPages" title="A list of all special pages [Alt+Shift+q]" accesskey="q">Special pages</a></li>
+													<li id="t-print"><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;printable=yes" rel="alternate" title="Printable version of this page [Alt+Shift+p]" accesskey="p">Printable version</a></li>
+													<li id="t-permalink"><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;oldid=6080" title="Permanent link to this revision of the page">Permanent link</a></li>
+													<li id="t-info"><a href="http://wiki.sunfounder.cc/index.php?title=GYML8511_UV_Sensor&amp;action=info" title="More information about this page">Page information</a></li>
+											</ul>
+							</div>
+		</div>
+				</div>
+		</div>
+		<div id="footer" role="contentinfo">
+							<ul id="footer-info">
+											<li id="footer-info-lastmod"> This page was last modified on 13 November 2019, at 02:56.</li>
+									</ul>
+							<ul id="footer-places">
+											<li id="footer-places-privacy"><a href="http://wiki.sunfounder.cc/index.php?title=Wiki:Privacy_policy" title="Wiki:Privacy policy">Privacy policy</a></li>
+											<li id="footer-places-about"><a href="http://wiki.sunfounder.cc/index.php?title=Wiki:About" title="Wiki:About">About Wiki</a></li>
+											<li id="footer-places-disclaimer"><a href="http://wiki.sunfounder.cc/index.php?title=Wiki:General_disclaimer" title="Wiki:General disclaimer">Disclaimers</a></li>
+									</ul>
+										<ul id="footer-icons" class="noprint">
+											<li id="footer-poweredbyico">
+															<a href="http://www.mediawiki.org/"><img src="wiki_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" srcset="wiki_files/poweredby_mediawiki_132x47.png 1.5x, wiki_files/poweredby_mediawiki_176x62.png 2x" width="88" height="31"></a>
+													</li>
+									</ul>
+						<div style="clear:both"></div>
+		</div>
+		<script>if(window.jQuery)jQuery.ready();</script><script>if(window.mw){
+mw.loader.state({"site":"ready","user":"ready","user.groups":"ready"});
+}</script>
+<script>if(window.mw){
+mw.loader.load(["mediawiki.toc","mediawiki.action.view.postEdit","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","mediawiki.searchSuggest"],null,true);
+}</script>
+<script>if(window.mw){
+mw.config.set({"wgBackendResponseTime":37});
+}</script>
+	
+
+<div style="display: none; font-size: 13px;" class="suggestions"><div class="suggestions-results"></div><div class="suggestions-special"></div></div></body><nordvpn-contentscript-extension-mount-3.10.1></nordvpn-contentscript-extension-mount-3.10.1></html>

@@ -1,5 +1,5 @@
 # https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#imports_granularity
-imports_granularity = "Item"
+imports_granularity = "Preserve"
 
 # https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#chain_width
 # chain_width = 0
