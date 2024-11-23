@@ -4,7 +4,9 @@ ToDo
 General
 --- 
 [x] update README
-[ ] update connections jpeg
+[x] update connections jpeg
+[ ] update readme project image
+[ ] switch to defmt
 
 Main task
 --- 
@@ -12,7 +14,7 @@ Main task
 
 Blink task
 --- 
-[ ] use PWM peripheral to dim the LED
+[ ] use PWM peripheral to dim the LED, its bright!
 
 Sensor task
 --- 
