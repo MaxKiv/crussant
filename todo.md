@@ -5,7 +5,8 @@ General
 --- 
 [x] update README
 [x] update connections jpeg
-[ ] update readme project image
+[x] update readme project image
+[ ] update readme display image
 [ ] switch to defmt
 
 Main task
@@ -14,15 +15,16 @@ Main task
 
 Blink task
 --- 
-[ ] use PWM peripheral to dim the LED, its bright!
+[ ] use a PWM peripheral to dim the LED, its bright!
 
 Sensor task
 --- 
 [x] Generate a random sample
 [x] add hdc1080 driver
 [x] add ccs881 driver
+[x] add BME280 driver -> my unit is actually a spl06
 [x] share i2c bus between drivers
-[ ] Write an embedded-hal 1.0.0 async capable driver for the humidity sensor?
+[ ] Write an embedded-hal 1.0.0 async capable driver for the spl06 humidity sensor?
 
 Display task
 ---

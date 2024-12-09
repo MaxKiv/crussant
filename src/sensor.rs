@@ -1,6 +1,7 @@
 use core::cell::RefCell;
 
-use bme280_rs::SensorMode;
+use bme280::i2c::AsyncBME280;
+
 use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_time::Delay;
@@ -98,20 +99,27 @@ pub async fn sensor_task(
     let i2c_device_1 = I2cDevice::new(i2c_bus);
     let i2c_device_2 = I2cDevice::new(i2c_bus);
     let i2c_device_3 = I2cDevice::new(i2c_bus);
+    let i2c_device_4 = I2cDevice::new(i2c_bus);
 
-    info!("Initializing hdc1080 sensor");
-    let mut hdc1080 = Hdc1080::new(RefCellDevice::new(i2c_device_1), Delay).unwrap();
-    let device_id = hdc1080.get_device_id().unwrap();
-    let manufacturing_id = hdc1080.get_man_id().unwrap();
-    info!("hdc1080 device id: {device_id} - expected 0x1050");
-    info!("hdc1080 manufacturing id: {manufacturing_id} - expected 0x5449");
+    // info!("Initializing hdc1080 sensor");
+    // let mut hdc1080 = Hdc1080::new(RefCellDevice::new(i2c_device_1), Delay).unwrap();
+    // let device_id = hdc1080.get_device_id().unwrap();
+    // let manufacturing_id = hdc1080.get_man_id().unwrap();
+    // info!("hdc1080 device id: {device_id} - expected 0x1050");
+    // info!("hdc1080 manufacturing id: {manufacturing_id} - expected 0x5449");
 
-    info!("Initializing ccs881 sensor");
-    let mut ccs811 = Ccs811Awake::new(RefCellDevice::new(i2c_device_2), SlaveAddr::default());
+    // info!("Initializing ccs881 sensor");
+    // let mut ccs811 = Ccs811Awake::new(RefCellDevice::new(i2c_device_2), SlaveAddr::default());
 
-    info!("Initializing sgp30 sensor");
-    let mut sgp30 = Sgp30::new(RefCellDevice::new(i2c_device_3), 0x58, Delay);
-    sgp30.init();
+    info!("Initializing bme280 sensor");
+    let mut bme280 = AsyncBME280::new_primary(i2c_device_4);
+    bme280.init(&mut Delay).await.map_err(|err| {
+        error!("bme280 Initializing Error: {err:?}");
+    });
+
+    // info!("Initializing sgp30 sensor");
+    // let mut sgp30 = Sgp30::new(RefCellDevice::new(i2c_device_3), 0x58, Delay);
+    // sgp30.init();
 
     info!(
         "Waiting {}ms for configuration to be processed",
@@ -120,18 +128,28 @@ pub async fn sensor_task(
     Timer::after(WARMUP_INTERVAL).await;
 
     loop {
-        let hdc_reading = hdc1080
-            .read()
-            .map_err(|err| {
-                error!("hdc1080 measurement error: {err:?}");
-                SensorError::Sample
-            })
-            .unwrap();
-        info!("hdc1080 reading: {hdc_reading:?}");
+        // let hdc_reading = hdc1080
+        //     .read()
+        //     .map_err(|err| {
+        //         error!("hdc1080 measurement error: {err:?}");
+        //         SensorError::Sample
+        //     })
+        //     .unwrap();
+        // info!("hdc1080 reading: {hdc_reading:?}");
 
-        let measurement: Measurement = sgp30.measure().unwrap();
-        info!("CO₂eq parts per million: {}", measurement.co2eq_ppm);
-        info!("TVOC parts per billion: {}", measurement.tvoc_ppb);
+        // let measurement: Measurement = sgp30.measure().unwrap();
+        // info!("CO₂eq parts per million: {}", measurement.co2eq_ppm);
+        // info!("TVOC parts per billion: {}", measurement.tvoc_ppb);
+
+        // measure temperature, pressure, and humidity
+        let measurements = bme280.measure(&mut Delay).await.map_err(|err| {
+            error!("bme280 measurement error: {err:?}");
+        });
+        // if let Ok(measurement) = measurements {
+        //     info!("Relative Humidity = {}%", measurements.humidity);
+        //     info!("Temperature = {} deg C", measurements.temperature);
+        //     info!("Pressure = {} pascals", measurements.pressure);
+        // }
 
         let sensor_reading = sample(&mut rng, &clock).await.unwrap_or_else(|err| {
             error!("sensor measurement error: {err:?}");

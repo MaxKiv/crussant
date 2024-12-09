@@ -79,7 +79,7 @@ log = {  version = "0.4"  }
 fugit = "0.3.7"
 
 # Sensor
-bme280-rs = { version = "0.2", default-features = false, features = ["async", "uom"] }
+bme280 = { version = "0.5.1", default-features = false, features = ["async", "embedded-hal-async"] }
 uom = { version = "0.33", default-features = false,  features = ["f32", "si"] }
 embedded-ccs811 = { version = "0.2.0", default-features = false,  features = [] }
 embedded-hdc1080-rs = { version = "0.1.0", default-features = false,  features = [] }

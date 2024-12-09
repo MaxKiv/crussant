@@ -73,7 +73,7 @@ where
     )
     .with_alignment(horizontal::Left)
     .arrange()
-    .align_to(&display_area, horizontal::Left, vertical::Top)
+    .align_to(&display_area, horizontal::Left, vertical::Bottom)
     .draw(display)?;
 
     Ok(())
